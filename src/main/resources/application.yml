@@ -8,4 +8,14 @@ spring:
     hibernate:
       ddl-auto: validate
 
+jwt:
+  secret-key: softarex
+  expire-time: 172800
+  refresh-expire-time: 518400
+logging:
+  level:
+    com.nikolai.softarex: debug
+
+cookies:
+  domain: localhost
 
