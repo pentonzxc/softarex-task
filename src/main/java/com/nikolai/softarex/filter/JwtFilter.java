@@ -58,7 +58,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = jwtOpt.get().getValue();
         UserDetails userDetails = null;
         try {
-            Optional<User> userOpt = userService.findUserByEmail(jwtService.getUsernameFromToken(token));
+            Optional<User> userOpt = userService.findByEmail(jwtService.getUsernameFromToken(token));
             userDetails = userOpt.orElse(null);
         } catch (JwtException e) {
             filterChain.doFilter(request, response);

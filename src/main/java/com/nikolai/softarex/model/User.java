@@ -30,6 +30,10 @@ public class User implements UserDetails {
 
     private String phoneNumber;
 
+    private boolean isActive;
+
+    private String verificationCode;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

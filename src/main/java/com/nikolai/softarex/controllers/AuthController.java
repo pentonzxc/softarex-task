@@ -4,12 +4,15 @@ import com.nikolai.softarex.dto.LoginCredentials;
 import com.nikolai.softarex.dto.RegisterCredentials;
 import com.nikolai.softarex.exception.InvalidTokenException;
 import com.nikolai.softarex.exception.UserAlreadyExistException;
-import com.nikolai.softarex.mapper.CredentialsMapper;
+import com.nikolai.softarex.mapper.CredentialsUserMapper;
 import com.nikolai.softarex.service.AuthService;
+import com.nikolai.softarex.service.EmailService;
 import com.nikolai.softarex.service.JwtService;
 import com.nikolai.softarex.service.UserService;
 import com.nikolai.softarex.util.CookieUtil;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,9 +32,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final JwtService jwtService;
 
+    private final EmailService emailService;
+
     private final UserService userService;
 
-    private final CredentialsMapper credentialsMapper;
+    private final CredentialsUserMapper credentialsMapper;
 
     private AuthService authService;
 
@@ -39,8 +44,9 @@ public class AuthController {
     private String domain;
 
     @Autowired
-    public AuthController(JwtService jwtService, UserService userService, CredentialsMapper credentialsMapper, AuthService authService) {
+    public AuthController(JwtService jwtService, EmailService emailService, UserService userService, CredentialsUserMapper credentialsMapper, AuthService authService) {
         this.jwtService = jwtService;
+        this.emailService = emailService;
         this.userService = userService;
         this.credentialsMapper = credentialsMapper;
         this.authService = authService;
@@ -50,17 +56,29 @@ public class AuthController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> register(@RequestBody
-                                      RegisterCredentials credentials) throws UserAlreadyExistException {
+                                      RegisterCredentials credentials,
+                                      HttpServletRequest request) throws UserAlreadyExistException, MessagingException {
         var user = credentialsMapper.registerCredentialsToUser(credentials);
-        authService.register(user);
+        authService.register(user, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 
+    @RequestMapping(value = "/register/verify", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> verifyRegister(@RequestParam(name = "code", required = true)
+                                            String verificationCode){
+        authService.verifyRegister(verificationCode);
+        return ResponseEntity.ok().build();
+    }
+
+
     @RequestMapping(value = "/login", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> login(@RequestBody
                                    LoginCredentials credentials) {
         var authentication = authService.authenticate(credentials);
@@ -71,13 +89,14 @@ public class AuthController {
     }
 
     @GetMapping("/validate")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> validateToken(@CookieValue(name = "token") String token,
                                            @AuthenticationPrincipal User user) {
         try {
+            log.debug("validate token");
             Boolean isValidToken = jwtService.validateToken(token, user);
-
             return ResponseEntity.ok(isValidToken);
-        } catch (ExpiredJwtException e) {
+        } catch (Exception e) {
             return ResponseEntity.ok(false);
         }
     }
@@ -85,6 +104,7 @@ public class AuthController {
     @PutMapping("/renew")
     public ResponseEntity<?> refreshToken(@CookieValue(name = "refresh_token") String token,
                                           @AuthenticationPrincipal User user) {
+        log.debug("refresh token");
         try {
             Boolean isValidToken = jwtService.validateToken(token, user);
             if (!isValidToken) {

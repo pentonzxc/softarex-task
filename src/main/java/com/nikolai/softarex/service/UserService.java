@@ -5,12 +5,16 @@ import com.nikolai.softarex.model.User;
 import java.util.Optional;
 
 public interface UserService {
-    Optional<User> findUserById(Integer id);
+    Optional<User> findById(Integer id);
 
-    Optional<User> findUserByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     void save(User user);
 
     void update(User user);
     boolean isEmailAvailable(String email);
+
+    Optional<User> findByVerificationCode(String code);
+
+
 }

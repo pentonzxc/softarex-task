@@ -17,13 +17,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findUserById(Integer id) {
-        return userRepository.findUserById(id);
+    public Optional<User> findById(Integer id) {
+        return userRepository.findById(id);
     }
 
     @Override
-    public Optional<User> findUserByEmail(String email) {
-        return userRepository.findUserByEmail(email);
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
@@ -38,6 +38,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isEmailAvailable(String email) {
-        return userRepository.findUserByEmail(email).isEmpty();
+        return userRepository.findByEmail(email).isEmpty();
     }
+
+    @Override
+    public Optional<User> findByVerificationCode(String code) {
+        return userRepository.findByVerificationCode(code);
+    }
+
 }
