@@ -1,15 +1,18 @@
 package com.nikolai.softarex.filter;
 
+import com.nikolai.softarex.exception.InvalidTokenException;
 import com.nikolai.softarex.model.User;
-import com.nikolai.softarex.service.UserService;
 import com.nikolai.softarex.service.JwtService;
+import com.nikolai.softarex.service.UserService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,14 +22,20 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private UserService userService;
 
     private JwtService jwtService;
+
+    private AuthenticationManager authenticationManager;
+
+    private static final String COOKIES_MATCHER = "^(token)|(refresh_token)$";
 
 
     @Autowired
@@ -37,39 +46,59 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        logger.debug("Find jwt cookie");
+        logger.debug("Find token cookie");
 
         if (request.getCookies() == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        Optional<Cookie> jwtOpt = Arrays.stream(request.getCookies())
-                .filter(cookie -> "jwt".equals(cookie.getName()))
-                .findAny();
 
-        if (jwtOpt.isEmpty()) {
+//        if(!request.getRequestURL().equals("http://localhost:8080/v1/api/auth/validate")){
+//            filterChain.doFilter(request , response);
+//            return;
+//        }
+
+
+        var cookies = Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().matches(COOKIES_MATCHER))
+                .sorted((Comparator.comparing(Cookie::getName)))
+                .toArray(Cookie[]::new);
+
+        if (cookies.length == 0) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        logger.debug("Retrieve user from token");
-
-        String token = jwtOpt.get().getValue();
+        var firstToken = cookies[0];
         UserDetails userDetails = null;
+
+        log.debug("Retrieve username from token");
+
         try {
-            Optional<User> userOpt = userService.findByEmail(jwtService.getUsernameFromToken(token));
+            Optional<User> userOpt = userService.findByEmail(jwtService.getUsernameFromToken(firstToken.getValue()));
             userDetails = userOpt.orElse(null);
         } catch (JwtException e) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        logger.debug("Validate token");
+        boolean isFirstInvalid = !jwtService.validateToken(firstToken.getValue(), userDetails);
 
-        if (!jwtService.validateToken(token, userDetails)) {
-            filterChain.doFilter(request, response);
-            return;
+        log.debug("First token - {} : isInvalid - {}", firstToken.getName(), isFirstInvalid);
+
+        if (cookies.length == 1 && isFirstInvalid) {
+            throw new InvalidTokenException();
+        } else if (cookies.length == 2 && isFirstInvalid) {
+            var secondToken = cookies[1];
+            boolean isSecondInvalid = !jwtService.validateToken(secondToken.getValue(), userDetails);
+
+            log.debug("First token - {} : isInvalid - {}", secondToken.getName(), isSecondInvalid);
+
+            if (!isSecondInvalid) {
+                throw new InvalidTokenException();
+            }
+
         }
 
         var authentication = new UsernamePasswordAuthenticationToken(
@@ -77,8 +106,6 @@ public class JwtFilter extends OncePerRequestFilter {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        logger.debug("Set authentication in SecurityContextHolder");
 
         filterChain.doFilter(request, response);
     }

@@ -3,6 +3,7 @@ package com.nikolai.softarex.config;
 import com.nikolai.softarex.filter.JwtFilter;
 import com.nikolai.softarex.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,8 +13,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
 @Configuration
@@ -23,10 +28,15 @@ public class WebSecurityConfig {
 
     private CustomUserDetailsService userDetailsService;
 
+    private AuthenticationEntryPoint failedAuthenticationPoint;
+
     @Autowired
-    public WebSecurityConfig(JwtFilter jwtFilter, CustomUserDetailsService userDetailsService) {
+    public WebSecurityConfig(JwtFilter jwtFilter,
+                             CustomUserDetailsService userDetailsService,
+                             @Qualifier("failedAuthHandler") AuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtFilter = jwtFilter;
         this.userDetailsService = userDetailsService;
+        this.failedAuthenticationPoint = authenticationEntryPoint;
     }
 
     @Bean
@@ -39,10 +49,16 @@ public class WebSecurityConfig {
 
         http = http.authorizeHttpRequests()
                 .requestMatchers("/v1/api/auth/**").permitAll()
+                .requestMatchers("/v1/api/user/**").permitAll()
                 .anyRequest().authenticated()
                 .and();
 
         http = http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http = http.exceptionHandling().defaultAuthenticationEntryPointFor(
+                failedAuthenticationPoint,
+                new AntPathRequestMatcher("/v1/api/auth/validate")
+        ).and();
 
         return http.build();
 

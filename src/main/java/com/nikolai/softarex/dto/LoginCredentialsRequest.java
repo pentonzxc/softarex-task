@@ -1,12 +1,14 @@
 package com.nikolai.softarex.dto;
 
 
-import com.nikolai.softarex.interfaces.Credentials;
 import lombok.Value;
 
 @Value
-public class LoginCredentials implements Credentials {
+public class LoginCredentialsRequest {
     String email;
 
     String password;
+
+    Boolean rememberMe;
+
 }

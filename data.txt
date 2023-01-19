@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS softarex_task."user"
     first_name   TEXT,
     last_name    TEXT,
     phone_number TEXT,
-    is_active    BOOLEAN DEFAULT FALSE
+    is_active    BOOLEAN DEFAULT FALSE,
+    verification_code text
 );
 
 -- THIRD VERSION
@@ -25,14 +26,14 @@ CREATE TYPE softarex_task.field_type as ENUM (
 
 -- FOURTH VERSION
 
-CREATE TABLE IF NOT EXISTS softarex_task.field
+CREATE TABLE IF NOT EXISTS softarex_task.questionnaire_field
 (
     id         SERIAL PRIMARY KEY,
     label      TEXT                     NOT NULL,
     required   BOOLEAN,
     is_active  BOOLEAN,
-    type       softarex_task.FIELD_TYPE NOT NULL,
-    properties jsonb,
+    type       text NOT NULL,
+    properties text,
     user_id    INT REFERENCES softarex_task."user" (id)
 );
 
@@ -42,7 +43,7 @@ CREATE TABLE IF NOT EXISTS softarex_task.field
 CREATE TABLE IF NOT EXISTS softarex_task.questionnaire_response
 (
     id   SERIAL,
-    data jsonb
+    data text
 );
 
 -- FIFTH VERSION

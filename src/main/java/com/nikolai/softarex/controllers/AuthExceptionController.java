@@ -12,7 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.security.sasl.AuthenticationException;
 
 @RestControllerAdvice
-public class AuthAdviceController extends ResponseEntityExceptionHandler {
+public class AuthExceptionController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

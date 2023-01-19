@@ -1,8 +1,11 @@
 package com.nikolai.softarex.util;
 
 import ch.qos.logback.core.util.Duration;
+import jakarta.servlet.http.Cookie;
 import lombok.experimental.UtilityClass;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 @UtilityClass
@@ -23,6 +26,28 @@ public class CookieUtil {
                 .maxAge(Duration.buildByDays(9).getMilliseconds())
                 .build();
     }
+
+    public Cookie createInvalidJwtServletCookie(String domain){
+        var token = new Cookie("token", "");
+        token.setPath("/");
+        token.setDomain(domain);
+        token.setMaxAge(0);
+
+        return token;
+    }
+
+    public Cookie createInvalidRefreshJwtServletCookie(String domain){
+        var token = new Cookie("refresh_token", "");
+        token.setPath("/");
+        token.setDomain(domain);
+        token.setMaxAge(0);
+
+        return token;
+    }
+
+
+
+
 
 
 }

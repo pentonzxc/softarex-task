@@ -1,6 +1,5 @@
 package com.nikolai.softarex.service;
 
-import com.nikolai.softarex.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -40,12 +39,12 @@ public class JwtService {
 
     public String createToken(UserDetails user) {
         Date exp = new Date(expireTime * 1000 + System.currentTimeMillis());
-        return doToken(user.getUsername(), exp);
+        return this.doToken(user.getUsername(), exp);
     }
 
     public String createRefreshToken(UserDetails user) {
         Date exp = new Date(refreshExpireTime * 1000 + System.currentTimeMillis());
-        return doToken(user.getUsername(), exp);
+        return this.doToken(user.getUsername(), exp);
     }
 
 
@@ -66,31 +65,49 @@ public class JwtService {
 
 
     public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getExpiration);
+        return this.getClaimFromToken(token, Claims::getExpiration);
     }
 
     public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
+        return this.getClaimFromToken(token, Claims::getSubject);
     }
 
     public Date getIssuedAtDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getIssuedAt);
+        return this.getClaimFromToken(token, Claims::getIssuedAt);
     }
 
-    private Boolean isTokenExpired(String token) {
-        Date expiration = getExpirationDateFromToken(token);
+    private boolean isTokenExpired(String token) {
+        Date expiration = this.getExpirationDateFromToken(token);
         return expiration.before(new Date(System.currentTimeMillis()));
     }
 
+    public String[] createTokens(UserDetails userDetails) {
+        String token = this.createToken(userDetails);
+        String refreshToken = this.createRefreshToken(userDetails);
+        return new String[]{
+                token, refreshToken
+        };
+    }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+
+    public boolean validateToken(String token, String username) {
         if (!StringUtils.hasText(token)) {
             return false;
         }
+        var usernameFromToken = this.getUsernameFromToken(token);
 
-        String username = getUsernameFromToken(token);
-        return (userDetails != null && username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return usernameFromToken.equals(username) && !this.isTokenExpired(token);
     }
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        if (!StringUtils.hasText(token)) {
+            return false;
+        }
+        var usernameFromToken = this.getUsernameFromToken(token);
+
+        return userDetails != null && usernameFromToken.equals(userDetails.getUsername()) && !this.isTokenExpired(token);
+    }
+
 
 
     private Claims getAllClaimsFromToken(String token) {
