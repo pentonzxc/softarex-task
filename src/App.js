@@ -4,6 +4,7 @@ import RegisterPage from "./components/pages/register/RegisterPage";
 import { Route, Routes } from "react-router-dom";
 import AuthRoute from "./components/route/AuthRoute";
 import TestResponse from "./TestResponse";
+import { useUser } from "./components/context/UserProvider";
 import FieldsPage from "./components/pages/fields/FieldsPage";
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -16,6 +17,9 @@ function App() {
         <Route path="home" element={<div>Home</div>} />
         <Route path="fields" element={<FieldsPage/>} />
       </Route>
+      <Route path="/test">
+      </Route>
+     
     </Routes>
   );
 }

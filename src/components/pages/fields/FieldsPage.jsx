@@ -1,30 +1,44 @@
 import React from "react";
 import { useUser } from "../../context/UserProvider";
-import { useEffect, useState } from "react";
+import { UserContext } from "../../context/UserProvider";
+import { useEffect, useState, useContext } from "react";
+import { useOutletContext } from "react-router-dom";
+import Cookies from "js-cookie";
 
 export default function FieldsPage() {
   const [fields, setFields] = useState([]);
-  const context = useUser();
-  const [email, setEmail] = context.user.data;
+  const email = localStorage.getItem("email");
+  console.log("test");
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/v1/user/${email}fields`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cors: "cors",
-      credentials: "include",
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          throw new Error("Failed to fetch fields");
-        }
+    const controller = new AbortController();
+    const getAllFields = async ({ controller }) => {
+      await fetch(`http://localhost:8080/v1/api/user/${email}/fields`, {
+        method: "GET",
+        cors: "cors",
+        credentials: "include",
+        signal: controller.signal,
       })
-      .then((data) => setFields(data))
-      .catch((error) => console.log(error));
+        .then((response) => {
+          console.log(response);
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error("Failed to fetch fields");
+          }
+        })
+        .then((data) => setFields(data))
+        .catch((error) => console.log(error));
+    };
+    getAllFields({ controller });
+
+    return () => {
+      try {
+        controller.abort();
+      } catch (error) {
+        console.error(error);
+      }
+    };
   }, []);
 
   return (

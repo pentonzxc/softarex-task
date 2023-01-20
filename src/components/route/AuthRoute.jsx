@@ -15,46 +15,56 @@ export default function AuthRoute() {
   const [isTokenValid, setIsTokenValid] = useState(null);
 
   useEffect(() => {
-    const validate = async () => {
-      const tokenResponse = await fetch(
-        "http://localhost:8080/v1/api/auth/validate",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie:
-              "token=" +
-              Cookies.get("token") +
-              "; refresh_token=" +
-              Cookies.get("refresh_token"),
-          },
-          cors: "cors",
-          credentials: "include",
-        }
-      )
+    const controller = new AbortController();
+    const validate = async ({ conroller }) => {
+      await fetch("http://localhost:8080/v1/api/auth/validate", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie:
+            "token=" +
+            Cookies.get("token") +
+            "; refresh_token=" +
+            Cookies.get("refresh_token"),
+        },
+        cors: "cors",
+        credentials: "include",
+        signal: controller.signal,
+      })
         .then((response) => {
+          console.log(response);
           if (response.status !== status.OK) {
             throw new Error("Tokens are invalid");
           }
           setIsTokenValid(true);
           return response.text();
         })
-        .then((data) => {
-          context.user.data[1](data);
+        .then((email) => {
+          const emailOpt = localStorage.getItem("email");
+          if (!emailOpt || emailOpt !== email) {
+            localStorage.setItem("email", email);
+          }
         })
         .catch((error) => {
           console.error(error);
           setIsTokenValid(false);
         });
-      setIsLoading(false);
+        setIsLoading(false);
     };
-    validate();
+    validate({ controller });
+    return () => {
+      try {
+        controller.abort();
+      } catch (error) {
+        console.error(error);
+      }
+    };
   }, []);
 
   return (
     <>
       {isLoading && <div>Loading...</div>}
-      {isTokenValid === true && <Outlet/>}
+      {isTokenValid === true && <Outlet />}
       {isTokenValid === false && <Navigate to="/login" />}
     </>
   );
