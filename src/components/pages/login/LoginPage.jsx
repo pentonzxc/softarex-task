@@ -47,15 +47,12 @@ export default function LoginPage() {
         if (response.status === status.OK) {
           console.log("Login successful");
 
-          user.tokens.access.setToken(Cookies.get("token"));
-          user.tokens.refresh.setRefreshToken(Cookies.get("refresh_token"));
+          user.tokens.access[1](Cookies.get("token"));
+          user.tokens.refresh[1](Cookies.get("refresh_token"));
           navigate("/home" , {replace: true});
-          return response.json();
         } else {
           throw new Error("Login failed");
         }
-      }).then((name) => {
-        user.data.setUserName(name);
       }).catch((error) => {
         console.log(error);
       });

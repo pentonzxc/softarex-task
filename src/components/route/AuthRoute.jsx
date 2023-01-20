@@ -22,7 +22,11 @@ export default function AuthRoute() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Cookie": "token=" + Cookies.get("token") + "; refresh_token=" + Cookies.get("refresh_token")
+            Cookie:
+              "token=" +
+              Cookies.get("token") +
+              "; refresh_token=" +
+              Cookies.get("refresh_token"),
           },
           cors: "cors",
           credentials: "include",
@@ -33,20 +37,24 @@ export default function AuthRoute() {
             throw new Error("Tokens are invalid");
           }
           setIsTokenValid(true);
+          return response.text();
+        })
+        .then((data) => {
+          context.user.data[1](data);
         })
         .catch((error) => {
           console.error(error);
           setIsTokenValid(false);
         });
-        setIsLoading(false);
+      setIsLoading(false);
     };
     validate();
-  }, [context.tokens.access[0], context.tokens.refresh[0]]);
+  }, []);
 
   return (
     <>
       {isLoading && <div>Loading...</div>}
-      {isTokenValid === true && <Outlet />}
+      {isTokenValid === true && <Outlet/>}
       {isTokenValid === false && <Navigate to="/login" />}
     </>
   );
