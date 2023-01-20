@@ -5,7 +5,8 @@ import com.nikolai.softarex.dto.UserDto;
 import com.nikolai.softarex.exception.UserAlreadyExistException;
 import com.nikolai.softarex.mapper.EntityMapper;
 import com.nikolai.softarex.model.User;
-import com.nikolai.softarex.service.AuthService;
+import com.nikolai.softarex.service.SecurityService;
+import com.nikolai.softarex.util.SecurityContextUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -29,16 +30,16 @@ public class AuthController {
 
     private final EntityMapper<User, UserDto> userMapper;
 
-    private final AuthService authService;
+    private final SecurityService securityService;
 
     @Value("${cookies.domain}")
     private String domain;
 
     @Autowired
     public AuthController(@Qualifier("userMapper") EntityMapper<User, UserDto> userMapper,
-                          AuthService authService) {
+                          SecurityService securityService) {
         this.userMapper = userMapper;
-        this.authService = authService;
+        this.securityService = securityService;
     }
 
 
@@ -49,7 +50,7 @@ public class AuthController {
                                       HttpServletRequest request
     ) throws UserAlreadyExistException, MessagingException {
         var user = userMapper.convertDtoToEntity(userDto);
-        authService.register(user, request);
+        securityService.register(user, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -59,7 +60,7 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> verifyRegister(@RequestParam(name = "code", required = true)
                                             String verificationCode) {
-        authService.verifyRegister(verificationCode);
+        securityService.verifyRegister(verificationCode);
         return ResponseEntity.ok().build();
     }
 
@@ -69,10 +70,10 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> login(@RequestBody
                                    LoginCredentialsRequest credentials) {
-        var authentication = authService.authenticate(credentials);
+        var authentication = securityService.authenticate(credentials);
 
-        var tokens = authService.createTokens((UserDetails) authentication.getPrincipal());
-        var cookies = AuthService.createJwtCookies(tokens, domain);
+        var tokens = securityService.createTokens((UserDetails) authentication.getPrincipal());
+        var cookies = SecurityService.createJwtCookies(tokens, domain);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookies[0].toString(), cookies[1].toString())
@@ -83,19 +84,19 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> validateToken(@CookieValue(name = "token", required = false) String token,
                                            @CookieValue(name = "refresh_token", required = false) String refreshToken) {
-        var user = authService.retrieveUserDetails();
+        var user = SecurityContextUtil.retrieveUserDetails();
         log.debug("validate refresh token - email - {}", user.getUsername());
 
-        boolean validate = authService.validateToken(Optional.ofNullable(token), user);
+        boolean validate = securityService.validateToken(Optional.ofNullable(token), user);
 
         if (!validate) {
-            var tokens = authService.refreshTokens(user);
-            var cookies = AuthService.createJwtCookies(tokens, domain);
+            var tokens = securityService.refreshTokens(user);
+            var cookies = SecurityService.createJwtCookies(tokens, domain);
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookies[0].toString(), cookies[1].toString())
-                    .build();
+                    .body(user.getUsername());
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(user.getUsername());
     }
 
 

@@ -1,5 +1,6 @@
 package com.nikolai.softarex.service;
 
+import com.nikolai.softarex.interfaces.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

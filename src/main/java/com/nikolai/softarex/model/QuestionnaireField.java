@@ -13,7 +13,6 @@ import java.sql.CallableStatement;
 import java.util.List;
 
 @Entity
-@Getter
 @Table(schema = "softarex_task")
 public class QuestionnaireField {
     @Id
@@ -25,9 +24,41 @@ public class QuestionnaireField {
     @Enumerated(value = EnumType.STRING)
     private Type type;
 
-    private boolean isRequired;
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-    private boolean isActive;
+    public Integer getId() {
+        return id;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public Boolean isRequired() {
+        return isRequired;
+    }
+
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public List<String> getProperties() {
+        return properties;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    private Boolean isRequired;
+
+    private Boolean isActive;
 
     @Convert(converter = StringListConverter.class)
     private List<String> properties;
@@ -54,7 +85,6 @@ public class QuestionnaireField {
     public void setActive(boolean active) {
         isActive = active;
     }
-
 
 
     public void setUser(User user) {

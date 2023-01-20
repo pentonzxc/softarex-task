@@ -13,6 +13,8 @@ public class FieldMapper implements EntityMapper<QuestionnaireField , Questionna
     @Override
     public QuestionnaireField convertDtoToEntity(QuestionnaireFieldDto dto) {
         var field = new QuestionnaireField();
+
+        field.setId(dto.getId());
         field.setLabel(dto.getLabel());
         field.setType(dto.getType());
         field.setProperties(dto.getProperties());
@@ -24,6 +26,15 @@ public class FieldMapper implements EntityMapper<QuestionnaireField , Questionna
 
     @Override
     public QuestionnaireFieldDto convertEntityToDto(QuestionnaireField entity) {
-        return null;
+        var field = new QuestionnaireFieldDto();
+
+        field.setId(entity.getId());
+        field.setActive(entity.isActive());
+        field.setRequired(entity.isRequired());
+        field.setLabel(entity.getLabel());
+        field.setType(entity.getType());
+        field.setProperties(entity.getProperties());
+
+        return field;
     }
 }

@@ -1,21 +1,31 @@
 package com.nikolai.softarex.service;
 
+import com.nikolai.softarex.dto.ChangePasswordRequest;
 import com.nikolai.softarex.dto.UpdateProfileRequest;
+import com.nikolai.softarex.exception.EmailNotFoundException;
+import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.model.User;
 import com.nikolai.softarex.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
+    private  PasswordEncoder passwordEncoder = null;
+
+
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -34,42 +44,12 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // future...
     @Override
     @Transactional
-    public void update(User user) {
-        var userOpt = findByEmail(user.getEmail());
-        if (userOpt.isPresent()) {
-            var sourceUser = userOpt.get();
-
-            var newFirstName = user.getFirstName();
-            var newLastName = user.getLastName();
-            var newPhoneNumber = user.getPhoneNumber();
-
-
-            if (newFirstName != null) {
-                sourceUser.setFirstName(newFirstName);
-            }
-
-            if (newLastName != null) {
-                sourceUser.setLastName(newLastName);
-            }
-
-            if (newPhoneNumber != null) {
-                sourceUser.setPhoneNumber(newPhoneNumber);
-            }
-        }
-
-        userRepository.save(user);
-    }
-
-
-    // future....
-    @Override
-    @Transactional
-    public void update(UpdateProfileRequest profile) {
+    public void updateProfile(UpdateProfileRequest profile) {
         var oldEmail = profile.getOldEmail();
-        var sourceUser = userRepository.findByEmail(oldEmail).get();
+        var sourceUser = userRepository.findByEmail(oldEmail)
+                .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(oldEmail)));
 
         var newEmail = profile.getNewEmail();
         var newFirstName = profile.getFirstName();
@@ -93,6 +73,16 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.save(sourceUser);
+    }
+
+    @Override
+    public void updatePassword(ChangePasswordRequest passwords) {
+        var email = passwords.getUserEmail();
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(email)));
+        var encodePassword = passwordEncoder.encode(passwords.getNewPassword());
+
+        user.setPassword(encodePassword);
     }
 
     @Override

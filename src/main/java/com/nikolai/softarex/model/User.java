@@ -1,6 +1,7 @@
 package com.nikolai.softarex.model;
 
 
+import com.sun.mail.imap.protocol.BODY;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Getter
 @Table(schema = "softarex_task")
 public class User implements UserDetails {
 
@@ -30,9 +30,16 @@ public class User implements UserDetails {
 
     private String phoneNumber;
 
-    private boolean isActive;
+    private Boolean isActive;
 
     private String verificationCode;
+
+    public void setPasswordChange(String passwordChange) {
+        this.passwordChange = passwordChange;
+    }
+
+    @Transient
+    private String passwordChange;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionnaireField> questionnaireFields;
@@ -114,5 +121,41 @@ public class User implements UserDetails {
 
     public void setQuestionnaireFields(List<QuestionnaireField> questionnaireFields) {
         this.questionnaireFields = questionnaireFields;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public String getPasswordChange() {
+        return passwordChange;
+    }
+
+    public List<QuestionnaireField> getQuestionnaireFields() {
+        return questionnaireFields;
     }
 }

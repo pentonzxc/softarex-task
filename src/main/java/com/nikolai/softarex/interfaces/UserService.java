@@ -1,5 +1,6 @@
-package com.nikolai.softarex.service;
+package com.nikolai.softarex.interfaces;
 
+import com.nikolai.softarex.dto.ChangePasswordRequest;
 import com.nikolai.softarex.dto.UpdateProfileRequest;
 import com.nikolai.softarex.model.User;
 
@@ -12,13 +13,13 @@ public interface UserService {
 
     void save(User user);
 
-    void update(User user);
 
-    void update(UpdateProfileRequest profile);
+    void updateProfile(UpdateProfileRequest profile);
+
+    void updatePassword(ChangePasswordRequest passwords);
 
     boolean isEmailAvailable(String email);
 
     Optional<User> findByVerificationCode(String code);
-
 
 }

@@ -30,6 +30,7 @@ public class WebSecurityConfig {
 
     private AuthenticationEntryPoint failedAuthenticationPoint;
 
+
     @Autowired
     public WebSecurityConfig(JwtFilter jwtFilter,
                              CustomUserDetailsService userDetailsService,
@@ -75,10 +76,6 @@ public class WebSecurityConfig {
                 .build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
 
 
 }

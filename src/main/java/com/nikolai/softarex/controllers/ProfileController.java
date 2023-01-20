@@ -1,10 +1,11 @@
 package com.nikolai.softarex.controllers;
 
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.nikolai.softarex.dto.ChangePasswordRequest;
 import com.nikolai.softarex.dto.UpdateProfileRequest;
-import com.nikolai.softarex.service.EmailService;
-import com.nikolai.softarex.service.UserService;
+import com.nikolai.softarex.service.SecurityService;
+import com.nikolai.softarex.interfaces.UserService;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,28 +20,28 @@ public class ProfileController {
 
     private final UserService userService;
 
-    private final EmailService emailService;
+    private final SecurityService securityService;
 
     @Autowired
-    public ProfileController(UserService userService, EmailService emailService) {
+    public ProfileController(UserService userService, SecurityService securityService) {
         this.userService = userService;
-        this.emailService = emailService;
+        this.securityService = securityService;
     }
 
 
     @RequestMapping("/updateProfile")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest profile) {
-        userService.update(profile);
+        userService.updateProfile(profile);
         return ResponseEntity.ok().build();
     }
 
 
     @RequestMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest passwords){
-        return null;
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest passwords,
+                                            HttpServletRequest request) throws MessagingException {
+        securityService.changePassword(passwords, request);
+        return ResponseEntity.ok().build();
     }
-
-
 
 }

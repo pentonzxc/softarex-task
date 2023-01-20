@@ -1,9 +1,9 @@
 package com.nikolai.softarex.filter;
 
 import com.nikolai.softarex.exception.InvalidTokenException;
+import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.model.User;
 import com.nikolai.softarex.service.JwtService;
-import com.nikolai.softarex.service.UserService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,9 +29,9 @@ import java.util.Optional;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
-    private UserService userService;
+    private final UserService userService;
 
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
     private AuthenticationManager authenticationManager;
 
@@ -45,8 +45,10 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        logger.debug("Find token cookie");
+    protected void doFilterInternal(final HttpServletRequest request,
+                                    final HttpServletResponse response,
+                                    final FilterChain filterChain) throws ServletException, IOException {
+        log.debug("JWT Filter - {}", request.getRequestURL());
 
         if (request.getCookies() == null) {
             filterChain.doFilter(request, response);
@@ -73,7 +75,6 @@ public class JwtFilter extends OncePerRequestFilter {
         var firstToken = cookies[0];
         UserDetails userDetails = null;
 
-        log.debug("Retrieve username from token");
 
         try {
             Optional<User> userOpt = userService.findByEmail(jwtService.getUsernameFromToken(firstToken.getValue()));
@@ -93,7 +94,7 @@ public class JwtFilter extends OncePerRequestFilter {
             var secondToken = cookies[1];
             boolean isSecondInvalid = !jwtService.validateToken(secondToken.getValue(), userDetails);
 
-            log.debug("First token - {} : isInvalid - {}", secondToken.getName(), isSecondInvalid);
+            log.debug("Second token - {} : isInvalid - {}", secondToken.getName(), isSecondInvalid);
 
             if (!isSecondInvalid) {
                 throw new InvalidTokenException();
