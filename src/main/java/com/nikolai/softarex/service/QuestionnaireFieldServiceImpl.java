@@ -1,12 +1,10 @@
 package com.nikolai.softarex.service;
 
 
-import com.nikolai.softarex.dto.QuestionnaireFieldDto;
 import com.nikolai.softarex.interfaces.QuestionnaireFieldService;
 import com.nikolai.softarex.model.QuestionnaireField;
 import com.nikolai.softarex.repository.QuestionnaireFieldRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.boot.web.embedded.netty.NettyWebServer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -54,7 +52,7 @@ private final QuestionnaireFieldRepository fieldRepository;
             source = fieldOpt.get();
 
             var newLabel = target.getLabel();
-            var newProperties = target.getProperties();
+            var newProperties = target.getOptions();
             var newType = target.getType();
             var newRequired = target.isRequired();
             var newActive = target.isActive();
@@ -64,7 +62,7 @@ private final QuestionnaireFieldRepository fieldRepository;
             }
 
             if(newProperties != null){
-                source.setProperties(newProperties);
+                source.setOptions(newProperties);
             }
 
             if(newType != null){

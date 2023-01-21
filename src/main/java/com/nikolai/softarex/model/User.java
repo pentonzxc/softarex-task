@@ -1,10 +1,7 @@
 package com.nikolai.softarex.model;
 
 
-import com.sun.mail.imap.protocol.BODY;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,6 +41,10 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionnaireField> questionnaireFields;
 
+    @OneToMany(mappedBy = "user", cascade =
+            {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
+    private List<QuestionnaireResponse> questionnaireResponses;
+
 
     public void addQuestionnaireField(QuestionnaireField field) {
         questionnaireFields.add(field);
@@ -54,6 +55,16 @@ public class User implements UserDetails {
         questionnaireFields.remove(field);
         field.setUser(null);
     }
+
+    public void addQuestionnaireResponse(QuestionnaireResponse response) {
+        questionnaireResponses.add(response);
+        response.setUser(this);
+    }
+
+    public List<QuestionnaireResponse> getQuestionnaireResponses() {
+        return questionnaireResponses;
+    }
+
 
 
     @Override
@@ -122,6 +133,7 @@ public class User implements UserDetails {
     public void setQuestionnaireFields(List<QuestionnaireField> questionnaireFields) {
         this.questionnaireFields = questionnaireFields;
     }
+
 
     public Integer getId() {
         return id;

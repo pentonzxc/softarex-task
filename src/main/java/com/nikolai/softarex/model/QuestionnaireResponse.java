@@ -1,5 +1,6 @@
 package com.nikolai.softarex.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.MapDeserializer;
@@ -25,7 +26,16 @@ public class QuestionnaireResponse {
     @Convert(converter = JsonConverter.class)
     private Map<String, Object> data;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private User user;
+
     public void setData(Map<String, Object> data) {
         this.data = data;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

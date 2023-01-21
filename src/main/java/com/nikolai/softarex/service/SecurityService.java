@@ -11,6 +11,7 @@ import com.nikolai.softarex.util.ExceptionMessageUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
@@ -30,6 +31,7 @@ import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 
 
 @Component
+@Slf4j
 public class SecurityService {
 
     private final UserService userService;
@@ -60,6 +62,7 @@ public class SecurityService {
     public void register(User user, HttpServletRequest emailRequest) throws UserAlreadyExistException, MessagingException {
         var email = user.getEmail();
 
+
         if (!(userService.isEmailAvailable(email))) {
             throw new UserAlreadyExistException(ExceptionMessageUtil.userAlreadyExistMsg(email));
         }
@@ -69,6 +72,8 @@ public class SecurityService {
         user.setPassword(encodePassword);
         user.setVerificationCode(verificationCode);
         user.setActive(false);
+
+        log.debug("User with email - {} , waiting verify ", email);
 
         userService.save(user);
 

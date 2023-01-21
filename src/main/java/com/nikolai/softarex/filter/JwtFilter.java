@@ -48,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(final HttpServletRequest request,
                                     final HttpServletResponse response,
                                     final FilterChain filterChain) throws ServletException, IOException {
-        log.debug("JWT Filter - {}", request.getRequestURL());
+        log.debug("JWT Filter");
 
         if (request.getCookies() == null) {
             filterChain.doFilter(request, response);

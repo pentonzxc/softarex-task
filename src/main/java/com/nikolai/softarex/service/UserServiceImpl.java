@@ -19,11 +19,11 @@ import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    private  PasswordEncoder passwordEncoder = null;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }

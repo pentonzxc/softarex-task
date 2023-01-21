@@ -4,8 +4,6 @@ import com.nikolai.softarex.dto.QuestionnaireFieldDto;
 import com.nikolai.softarex.model.QuestionnaireField;
 import org.springframework.stereotype.Component;
 
-import java.text.Format;
-
 
 @Component
 public class FieldMapper implements EntityMapper<QuestionnaireField , QuestionnaireFieldDto> {
@@ -17,7 +15,7 @@ public class FieldMapper implements EntityMapper<QuestionnaireField , Questionna
         field.setId(dto.getId());
         field.setLabel(dto.getLabel());
         field.setType(dto.getType());
-        field.setProperties(dto.getProperties());
+        field.setOptions(dto.getOptions());
         field.setActive(dto.isActive());
         field.setRequired(dto.isRequired());
 
@@ -33,7 +31,7 @@ public class FieldMapper implements EntityMapper<QuestionnaireField , Questionna
         field.setRequired(entity.isRequired());
         field.setLabel(entity.getLabel());
         field.setType(entity.getType());
-        field.setProperties(entity.getProperties());
+        field.setOptions(entity.getOptions());
 
         return field;
     }

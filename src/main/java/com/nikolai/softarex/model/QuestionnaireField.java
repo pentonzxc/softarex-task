@@ -1,15 +1,10 @@
 package com.nikolai.softarex.model;
 
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nikolai.softarex.converter.StringListConverter;
-import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import org.hibernate.annotations.Type;
-import org.springframework.data.annotation.TypeAlias;
 
-import java.sql.CallableStatement;
 import java.util.List;
 
 @Entity
@@ -48,8 +43,8 @@ public class QuestionnaireField {
         return isActive;
     }
 
-    public List<String> getProperties() {
-        return properties;
+    public List<String> getOptions() {
+        return options;
     }
 
     public User getUser() {
@@ -61,13 +56,14 @@ public class QuestionnaireField {
     private Boolean isActive;
 
     @Convert(converter = StringListConverter.class)
-    private List<String> properties;
+    private List<String> options;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User user;
 
-    public void setProperties(List<String> properties) {
-        this.properties = properties;
+    public void setOptions(List<String> properties) {
+        this.options = properties;
     }
 
     public void setLabel(String label) {

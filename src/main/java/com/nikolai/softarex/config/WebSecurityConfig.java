@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @Configuration
 public class WebSecurityConfig {
 
@@ -42,7 +42,7 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http = http.csrf().disable();
+        http = http.csrf().disable().cors().and();
 
         http = http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -50,7 +50,6 @@ public class WebSecurityConfig {
 
         http = http.authorizeHttpRequests()
                 .requestMatchers("/v1/api/auth/**").permitAll()
-                .requestMatchers("/v1/api/user/**").permitAll()
                 .anyRequest().authenticated()
                 .and();
 

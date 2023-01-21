@@ -2,19 +2,21 @@ package com.nikolai.softarex.controllers;
 
 import com.nikolai.softarex.dto.ChangePasswordRequest;
 import com.nikolai.softarex.dto.UpdateProfileRequest;
-import com.nikolai.softarex.service.SecurityService;
 import com.nikolai.softarex.interfaces.UserService;
+import com.nikolai.softarex.service.SecurityService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/api/user/profile")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @Slf4j
 public class ProfileController {
 
