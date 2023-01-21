@@ -6,7 +6,10 @@ import AuthRoute from "./components/route/AuthRoute";
 import TestResponse from "./TestResponse";
 import { useUser } from "./components/context/UserProvider";
 import FieldsPage from "./components/pages/fields/FieldsPage";
+import Delevopment from "./Development";
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min'
+
 
 function App() {
   return (
@@ -14,10 +17,12 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/" element={<AuthRoute />}>
-        <Route path="home" element={<div>Home</div>} />
+        <Route path="home" element={
+          <div>Home page</div>
+        } />
         <Route path="fields" element={<FieldsPage/>} />
       </Route>
-      <Route path="/test">
+      <Route path="/development" element={<Delevopment/>}>
       </Route>
      
     </Routes>
