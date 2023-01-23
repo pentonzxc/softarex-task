@@ -1,6 +1,9 @@
 import React, { useCallback } from "react";
 import { useEffect, useState } from "react";
 import AddField from "./AddField";
+import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
 export default function FieldList() {
   const [fields, setFields] = useState([]);
@@ -56,18 +59,31 @@ export default function FieldList() {
           </tr>
         </thead>
         <tbody>
-          {console.log(fields)}
           {fields.map((field, index) => (
             <tr key={index}>
               <td>{field.label}</td>
               <td>{field.type}</td>
               <td>{field.active ? "true" : "false"}</td>
               <td>{field.required ? "true" : "false"}</td>
+              <td>
+                <div className="d-flex flex-row justify-content-end gap-3">
+                  <div>
+                    <button type="button" className="btn" onClick={(e) => console.log(index)}>
+                    <FontAwesomeIcon icon={faPenToSquare} style={{color: 'gray'}} />
+                    </button>
+                  </div>
+                  <div>
+                    <button type="button" className="btn" onClick={ (e) =>console.log(index)}>
+                    <FontAwesomeIcon icon={faTrashCan} style={{color: 'gray'}} />
+                    </button>
+                  </div>
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <AddField add={addField} list={fields}/>
+      <AddField add={addField} list={fields} />
     </div>
   );
 }

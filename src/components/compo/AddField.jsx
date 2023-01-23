@@ -14,47 +14,45 @@ export default function AddField(props) {
     active: false,
   };
 
-  const optionsRef = useRef(null);
+  const [options, setOptions] = useState("");
 
   const [fieldData, setFieldData] = useState(initialFieldData);
 
   const updateFieldData = useCallback(
     (type) => (event) => {
-      setFieldData({ ...fieldData, [type]: event.target.value });
-    },
+        setFieldData({ ...fieldData, [type]: event.target.value });
+      }
+    ,
     [fieldData]
   );
 
   const addField = () => {
-    setFieldData({
-      ...fieldData,
-      options: optionsRef.current.value.split("\n"),
-    });
+    console.log(fieldData);
 
-    fetch(`http://localhost:8080/v1/api/user/${email}/addField`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(fieldData),
-      credentials: "include",
-      mode: "cors",
-    })
-      .then((response) => {
-        console.log(response);
-        if (response.status === status.CREATED) {
-          return response.text();
-        } else {
-          throw new Error("Field not added");
-        }
-      })
-      .then((data) => {
-        console.log(data);
-        props.add(fieldData);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    //   fetch(`http://localhost:8080/v1/api/user/${email}/addField`, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(fieldData),
+    //     credentials: "include",
+    //     mode: "cors",
+    //   })
+    //     .then((response) => {
+    //       console.log(response);
+    //       if (response.status === status.CREATED) {
+    //         return response.text();
+    //       } else {
+    //         throw new Error("Field not added");
+    //       }
+    //     })
+    //     .then((data) => {
+    //       console.log(data);
+    //       props.add(fieldData);
+    //     })
+    //     .catch((error) => {
+    //       console.log(error);
+    //     });
   };
 
   const formHandler = (e) => {
@@ -66,36 +64,36 @@ export default function AddField(props) {
     <div>
       <button
         type="button"
-        class="btn btn-primary"
+        className="btn btn-primary"
         data-bs-toggle="modal"
         data-bs-target="#exampleModal"
       >
         Launch demo modal
       </button>
       <div
-        class="modal fade"
+        className="modal fade"
         id="exampleModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="exampleModalLabel">
                 Create field
               </h5>
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body">
+            <div className="modal-body">
               <form>
-                <div class="mb-3">
-                  <label for="label" className="form-label">
+                <div className="mb-3">
+                  <label htmlFor="label" className="form-label">
                     Label
                   </label>
                   <input
@@ -107,16 +105,18 @@ export default function AddField(props) {
                   />
                 </div>
 
-                <div class="mb-3">
-                  <label for="type" className="form-label">
+                <div className="mb-3">
+                  <label htmlFor="type" className="form-label">
                     Type
                   </label>
                   <select
-                    class="form-select "
+                    className="form-select "
                     aria-label="Default select example"
                     id="type"
                     value={fieldData.type}
-                    onChange={updateFieldData("type")}
+                    onChange={(event) => {
+                      
+                    }}
                   >
                     <option value="SINGLE_LINE_TEXT" defaultValue>
                       Single line text
@@ -128,58 +128,63 @@ export default function AddField(props) {
                     <option value="DATE">Date</option>
                   </select>
                 </div>
-                <div class="mb-3">
-                  <div class="form-outline">
-                    <label class="form-label" for="textAreaExample">
+                <div className="mb-3">
+                  <div className="form-outline">
+                    <label className="form-label" htmlFor="textAreaExample">
                       Options
                     </label>
                     <textarea
-                      class="form-control"
+                      className="form-control"
                       id="textAreaExample"
                       rows="6"
-                      ref={optionsRef}
+                      value={options}
+                      onChange={(event) => {
+                        setOptions(event.target.value);
+                        updateFieldData("options")(event);
+                        }
+                      }
                     ></textarea>
                   </div>
                 </div>
                 <div className="d-flex  justify-content-center gap-3">
-                  <div class="form-check">
+                  <div className="form-check">
                     <input
-                      class="form-check-input"
+                      className="form-check-input"
                       type="checkbox"
                       onChange={updateFieldData("required")}
                       value={fieldData.required}
                       id="required"
                     />
-                    <label class="form-check-label" for="required">
+                    <label className="form-check-label" htmlFor="required">
                       Required
                     </label>
                   </div>
-                  <div class="form-check">
+                  <div className="form-check">
                     <input
-                      class="form-check-input"
+                      className="form-check-input"
                       type="checkbox"
                       value={fieldData.active}
                       onChange={updateFieldData("active")}
                       id="active"
                     />
-                    <label class="form-check-label" for="active">
+                    <label className="form-check-label" htmlFor="active">
                       Is active
                     </label>
                   </div>
                 </div>
               </form>
             </div>
-            <div class="modal-footer">
+            <div className="modal-footer">
               <button
                 type="button"
-                class="btn btn-secondary"
+                className="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
                 Close
               </button>
               <button
                 type="button"
-                class="btn btn-primary"
+                className="btn btn-primary"
                 onClick={formHandler}
               >
                 Save changes

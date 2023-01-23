@@ -1,185 +1,248 @@
 import React from "react";
-import { useState, useCallback , useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import status from "http-status";
+import key from "weak-key";
+import { nanoid } from "nanoid";
 
 export default function Development() {
-  const email = localStorage.getItem("email");
-  const status = require("http-status");
+  // radio button , checkbox , combobox
+  // date custom
 
-  const initialFieldData = {
-    label: "",
-    type: "SINGLE LINE TEXT",
-    options: [],
-    required: false,
-    active: false,
-  };
-
-  const optionsRef = useRef(null);
-
-  const [fieldData, setFieldData] = useState(initialFieldData);
-
-
-  console.log(1);
-
-  const updateFieldData = useCallback(
-    (type) => (event) => {
-      setFieldData({ ...fieldData, [type]: event.target.value });
+  const questionnaire = [
+    {
+      unique_id: nanoid(),
+      label: "Gender",
+      type: "RADIO_BUTTON",
+      options: [
+        {
+          unique_id: nanoid(),
+          value: "man",
+        },
+        {
+          unique_id: nanoid(),
+          value: "woman",
+        },
+      ],
+      required: true,
     },
-    [fieldData]
+    {
+      label: "Learn",
+      type: "CHECKBOX",
+      options: [
+        {
+          unique_id: nanoid(),
+          value: "Хочу изучать CSS",
+        },
+        {
+          unique_id: nanoid(),
+          value: "Хочу изучать HTML",
+        },
+      ],
+      required: true,
+    },
+    {
+      unique_id: nanoid(),
+      label: "Sugar",
+      type: "COMBOBOX",
+      options: [
+        {
+          unique_id: nanoid(),
+          value: "indifferent",
+        },
+        {
+          unique_id: nanoid(),
+          value: "hate",
+        },
+        {
+          unique_id: nanoid(),
+          value: "love",
+        },
+      ],
+      required: true,
+    },
+    {
+      unique_id: nanoid(),
+      label: "Birth",
+      type: "DATE",
+      options: [],
+      required: true,
+    },
+    {
+      unique_id: nanoid(),
+      label: "Small text",
+      type: "SINGLE_LINE_TEXT",
+      options: [],
+      required: true,
+    },
+    {
+      unique_id: nanoid(),
+      label: "Big text",
+      type: "MULTILINE_TEXT",
+      options: [],
+      required: true,
+    },
+  ];
+
+  const initialResponse = questionnaire.map((question) => ({
+    label: question.label,
+    value: "",
+  }));
+
+  const [response, setResponse] = useState(initialResponse);
+
+  const updateResponseData = useCallback(
+    (index, type) => (event) => {
+      setResponse(...response);
+    },
+    []
   );
 
-  const addField = () => {
-    setFieldData({ ...fieldData, options: optionsRef.current.value.split("\n") });
-
-    fetch(`http://localhost:8080/v1/api/user/${email}/addField`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(fieldData),
-      credentials: "include",
-      mode: "cors",
-    }).then((response) => {
-        if (response.status === status.CREATED) {
-          console.log("Field added");
-          return response.text();
-        } else {
-          throw new Error("Field not added");
-        }
-      })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const formHandler = (e) => {
-    e.preventDefault();
-    addField();
-  };
-
   return (
-    <div>
+    <div className="container-fluid">
       <button
         type="button"
-        class="btn btn-primary"
+        className="btn btn-primary"
         data-bs-toggle="modal"
         data-bs-target="#exampleModal"
       >
         Launch demo modal
       </button>
       <div
-        class="modal fade"
+        className="modal fade"
         id="exampleModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">
-                Create field
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="exampleModalLabel">
+                Create questionnaire
               </h5>
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body">
+            <div className="modal-body">
               <form>
-                <div class="mb-3">
-                  <label for="label" className="form-label">
-                    Label
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="label"
-                    value={fieldData.label}
-                    onChange={updateFieldData("label")}
-                  />
-                </div>
-
-                <div class="mb-3">
-                  <label for="type" className="form-label">
-                    Type
-                  </label>
-                  <select
-                    class="form-select "
-                    aria-label="Default select example"
-                    id="type"
-                    value={fieldData.type}
-                    onChange={updateFieldData("type")}
-                  >
-                    <option value="SINGLE_LINE_TEXT" defaultValue>
-                      Single line text
-                    </option>
-                    <option value="MULTILINE_TEXT">Multiline text</option>
-                    <option value="RADIO_BUTTON">Radio button</option>
-                    <option value="CHECKBOX">Checkbox</option>
-                    <option value="COMBOBOX">Combobox</option>
-                    <option value="DATE">Date</option>
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <div class="form-outline">
-                    <label class="form-label" for="textAreaExample">
-                      Options
-                    </label>
-                    <textarea
-                      class="form-control"
-                      id="textAreaExample"
-                      rows="6"
-                      ref={optionsRef}
-                    ></textarea>
-                  </div>
-                </div>
-                <div className="d-flex  justify-content-center gap-3">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      onChange={updateFieldData("required")}
-                      value={fieldData.required}
-                      id="required"
-                    />
-                    <label class="form-check-label" for="required">
-                      Required
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      value={fieldData.active}
-                      onChange={updateFieldData("active")}
-                      id="active"
-                    />
-                    <label class="form-check-label" for="active">
-                      Is active
-                    </label>
-                  </div>
+                <div>
+                  {questionnaire.map((questionnaire, index) => {
+                    return (
+                      <div className="mb-3" key={questionnaire.unique_id}>
+                        <label htmlFor="exampleInputEmail1" className="col">
+                          {questionnaire.label}
+                        </label>
+                        {questionnaire.type === "RADIO_BUTTON" && (
+                          <div>
+                            {questionnaire.options.map((option) => {
+                              return (
+                                <div
+                                  className="form-check"
+                                  key={option.unique_id}
+                                >
+                                  <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="flexRadioDefault"
+                                    id="flexRadioDefault1"
+                                    onChange={(event) =>
+                                      updateResponseData(index)
+                                    }
+                                  />
+                                  <label
+                                    className="form-check-label"
+                                    htmlFor="flexRadioDefault1"
+                                  >
+                                    {option.value}
+                                  </label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {questionnaire.type === "CHECKBOX" && (
+                          <div>
+                            {questionnaire.options.map((option) => {
+                              return (
+                                <div
+                                  className="form-check"
+                                  key={option.unique_id}
+                                >
+                                  <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    value=""
+                                    id="flexCheckDefault"
+                                  />
+                                  <label
+                                    className="form-check-label"
+                                    htmlFor="flexCheckDefault"
+                                  >
+                                    {option.value}
+                                  </label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {questionnaire.type === "COMBOBOX" && (
+                          <select
+                            className="form-select"
+                            aria-label="Default select example"
+                          >
+                            {questionnaire.options.map((option) => {
+                              return (
+                                <option
+                                  key={option.unique_id}
+                                  value={option.value}
+                                >
+                                  {option.value}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        )}
+                        {questionnaire.type === "DATE" && (
+                          <input
+                            className="form-control"
+                            type="date"
+                            id="example-date-input"
+                          />
+                        )}
+                        {questionnaire.type === "SINGLE_LINE_TEXT" && (
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="exampleInputEmail1"
+                            aria-describedby="emailHelp"
+                          />
+                        )}
+                        {questionnaire.type === "MULTILINE_TEXT" && (
+                          <textarea
+                            className="form-control"
+                            id="exampleFormControlTextarea1"
+                            rows="3"
+                          ></textarea>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </form>
             </div>
-            <div class="modal-footer">
+            <div className="modal-footer">
               <button
                 type="button"
-                class="btn btn-secondary"
+                className="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
                 Close
               </button>
-              <button
-                type="button"
-                class="btn btn-primary"
-                onClick={formHandler}
-              >
+              <button type="button" className="btn btn-primary">
                 Save changes
               </button>
             </div>
