@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Component
@@ -82,14 +83,6 @@ public class JwtService {
         return expiration.before(new Date(System.currentTimeMillis()));
     }
 
-    public String[] createTokens(UserDetails userDetails) {
-        String token = this.createToken(userDetails);
-        String refreshToken = this.createRefreshToken(userDetails);
-        return new String[]{
-                token, refreshToken
-        };
-    }
-
 
     public boolean validateToken(String token, String username) {
         if (!StringUtils.hasText(token)) {
@@ -110,10 +103,21 @@ public class JwtService {
     }
 
 
-
     private Claims getAllClaimsFromToken(String token) {
         return (Claims) Jwts.parser().setSigningKey(secretKey).parse(token).getBody();
     }
 
+    public class JwtServiceHelper {
+        public String[] createRefreshAndAccessToken(UserDetails userDetails) {
+            String token = createToken(userDetails);
+            String refreshToken = createRefreshToken(userDetails);
+            return new String[]{
+                    token, refreshToken
+            };
+        }
 
+        public boolean validateToken(Optional<String> token, UserDetails user) {
+            return token.filter(s -> JwtService.this.validateToken(s, user)).isPresent();
+        }
+    }
 }

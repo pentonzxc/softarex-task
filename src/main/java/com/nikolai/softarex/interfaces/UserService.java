@@ -1,7 +1,7 @@
 package com.nikolai.softarex.interfaces;
 
-import com.nikolai.softarex.dto.ChangePasswordRequest;
-import com.nikolai.softarex.dto.UpdateProfileRequest;
+import com.nikolai.softarex.dto.ChangePasswordDto;
+import com.nikolai.softarex.dto.UpdateProfileDto;
 import com.nikolai.softarex.model.User;
 
 import java.util.Optional;
@@ -14,9 +14,9 @@ public interface UserService {
     void save(User user);
 
 
-    void updateProfile(UpdateProfileRequest profile);
+//    void updateProfile(UpdateProfileDto profile);
 
-    void updatePassword(ChangePasswordRequest passwords);
+//    void updatePassword(ChangePasswordDto passwords);
 
     boolean isEmailAvailable(String email);
 

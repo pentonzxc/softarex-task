@@ -15,17 +15,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/api/field")
 public class FieldController {
 
-    private final UserService userService;
-
     private final QuestionnaireFieldService fieldService;
 
     private final EntityMapper<QuestionnaireField, QuestionnaireFieldDto> fieldMapper;
 
     @Autowired
-    public FieldController(UserService userService,
-                           QuestionnaireFieldService fieldService,
+    public FieldController(QuestionnaireFieldService fieldService,
                            FieldMapper fieldMapper) {
-        this.userService = userService;
         this.fieldService = fieldService;
         this.fieldMapper = fieldMapper;
     }
@@ -35,7 +31,6 @@ public class FieldController {
     @ResponseStatus(HttpStatus.OK)
     public void edit(@RequestBody QuestionnaireFieldDto fieldDto) {
         var field = fieldMapper.convertDtoToEntity(fieldDto);
-
         fieldService.update(field);
     }
 
@@ -46,12 +41,12 @@ public class FieldController {
         fieldService.remove(id);
     }
 
-    @RequestMapping(value = "/editActive/{id}", method = RequestMethod.PATCH)
-    @ResponseStatus(HttpStatus.OK)
-    public void disable(@PathVariable(value = "id", required = true) Integer id) {
-        var field = fieldService.findById(id).orElseThrow(FieldNotFoundException::new);
-        field.setActive(!field.isActive());
-    }
+//    @RequestMapping(value = "/editActive/{id}", method = RequestMethod.PATCH)
+//    @ResponseStatus(HttpStatus.OK)
+//    public void disable(@PathVariable(value = "id", required = true) Integer id) {
+//        var field = fieldService.findById(id).orElseThrow(FieldNotFoundException::new);
+//        field.setActive(!field.isActive());
+//    }
 
 
 }

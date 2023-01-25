@@ -3,31 +3,38 @@ package com.nikolai.softarex.util;
 import ch.qos.logback.core.util.Duration;
 import jakarta.servlet.http.Cookie;
 import lombok.experimental.UtilityClass;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.userdetails.UserDetails;
 
 
 @UtilityClass
 public class CookieUtil {
 
-    public ResponseCookie createJwtCookie(String token , String domain){
-        return ResponseCookie.from("token" , token)
+    public ResponseCookie createJwtCookie(String token, String domain) {
+        return ResponseCookie.from("token", token)
                 .domain(domain)
                 .path("/")
                 .maxAge(Duration.buildByDays(3).getMilliseconds())
                 .build();
     }
 
-    public ResponseCookie createRefreshJwtCookie(String token, String domain){
-        return ResponseCookie.from("refresh_token" , token)
+    public ResponseCookie createRefreshJwtCookie(String token, String domain) {
+        return ResponseCookie.from("refresh_token", token)
                 .domain(domain)
                 .path("/")
                 .maxAge(Duration.buildByDays(9).getMilliseconds())
                 .build();
     }
 
-    public Cookie createInvalidJwtServletCookie(String domain){
+    public ResponseCookie[] createJwtCookies(String[] tokens, String domain) {
+        var jwtCookie = CookieUtil.createJwtCookie(tokens[0], domain);
+        var refreshJwtCookie = CookieUtil.createRefreshJwtCookie(tokens[1], domain);
+
+        return new ResponseCookie[]{
+                jwtCookie, refreshJwtCookie
+        };
+    }
+
+    public Cookie createInvalidJwtServletCookie(String domain) {
         var token = new Cookie("token", "");
         token.setPath("/");
         token.setDomain(domain);
@@ -36,7 +43,7 @@ public class CookieUtil {
         return token;
     }
 
-    public Cookie createInvalidRefreshJwtServletCookie(String domain){
+    public Cookie createInvalidRefreshJwtServletCookie(String domain) {
         var token = new Cookie("refresh_token", "");
         token.setPath("/");
         token.setDomain(domain);
@@ -44,10 +51,5 @@ public class CookieUtil {
 
         return token;
     }
-
-
-
-
-
 
 }

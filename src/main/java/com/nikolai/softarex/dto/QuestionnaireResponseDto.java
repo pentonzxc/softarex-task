@@ -2,12 +2,10 @@ package com.nikolai.softarex.dto;
 
 import lombok.Data;
 
-import java.util.Map;
-
-
+import java.util.List;
 
 
 @Data
 public class QuestionnaireResponseDto {
-    private Map<String , Object> data;
+    public List<Object> list;
 }

@@ -1,11 +1,13 @@
 package com.nikolai.softarex.controllers;
 
-import com.nikolai.softarex.dto.LoginCredentialsRequest;
+import com.nikolai.softarex.dto.LoginDto;
 import com.nikolai.softarex.dto.UserDto;
 import com.nikolai.softarex.exception.UserAlreadyExistException;
 import com.nikolai.softarex.mapper.EntityMapper;
 import com.nikolai.softarex.model.User;
+import com.nikolai.softarex.service.JwtService;
 import com.nikolai.softarex.service.SecurityService;
+import com.nikolai.softarex.util.CookieUtil;
 import com.nikolai.softarex.util.SecurityContextUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,14 +33,18 @@ public class AuthController {
 
     private final SecurityService securityService;
 
+    private final JwtService.JwtServiceHelper jwtHelper;
+
     @Value("${cookies.domain}")
     private String domain;
 
     @Autowired
     public AuthController(@Qualifier("userMapper") EntityMapper<User, UserDto> userMapper,
-                          SecurityService securityService) {
+                          SecurityService securityService,
+                          JwtService jwtService) {
         this.userMapper = userMapper;
         this.securityService = securityService;
+        this.jwtHelper = jwtService.new JwtServiceHelper();
     }
 
 
@@ -68,11 +74,11 @@ public class AuthController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> login(@RequestBody
-                                   LoginCredentialsRequest credentials) {
+                                   LoginDto credentials) {
         var authentication = securityService.authenticate(credentials);
 
-        var tokens = securityService.createTokens((UserDetails) authentication.getPrincipal());
-        var cookies = SecurityService.createJwtCookies(tokens, domain);
+        var tokens = jwtHelper.createRefreshAndAccessToken((UserDetails) authentication.getPrincipal());
+        var cookies = CookieUtil.createJwtCookies(tokens, domain);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookies[0].toString(), cookies[1].toString())
@@ -86,17 +92,16 @@ public class AuthController {
         var user = SecurityContextUtil.retrieveUserDetails();
         log.debug("validate refresh token - email - {}", user.getUsername());
 
-        boolean validate = securityService.validateToken(Optional.ofNullable(token), user);
+        boolean validate = jwtHelper.validateToken(Optional.ofNullable(token), user);
 
         if (!validate) {
-            var tokens = securityService.refreshTokens(user);
-            var cookies = SecurityService.createJwtCookies(tokens, domain);
+            var tokens = jwtHelper.createRefreshAndAccessToken(user);
+            var cookies = CookieUtil.createJwtCookies(tokens, domain);
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookies[0].toString(), cookies[1].toString())
                     .body(user.getUsername());
         }
         return ResponseEntity.ok().body(user.getUsername());
     }
-
 
 }

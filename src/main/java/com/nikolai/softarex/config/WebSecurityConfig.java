@@ -19,6 +19,13 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
+
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -50,6 +57,7 @@ public class WebSecurityConfig {
 
         http = http.authorizeHttpRequests()
                 .requestMatchers("/v1/api/auth/**").permitAll()
+                .requestMatchers("/v1/api/questionnaire/**").permitAll()
                 .anyRequest().authenticated()
                 .and();
 
@@ -74,7 +82,6 @@ public class WebSecurityConfig {
                 .and()
                 .build();
     }
-
 
 
 }

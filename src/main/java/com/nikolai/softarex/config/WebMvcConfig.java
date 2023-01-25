@@ -1,5 +1,6 @@
 package com.nikolai.softarex.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nikolai.softarex.handler.LogRequestHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -22,6 +24,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:3000")
+                .allowedMethods("POST", "GET" , "PUT" , "DELETE" , "PATCH")
                 .allowCredentials(true);
     }
 }

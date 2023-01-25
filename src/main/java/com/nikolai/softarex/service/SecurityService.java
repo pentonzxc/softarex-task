@@ -1,12 +1,11 @@
 package com.nikolai.softarex.service;
 
 
-import com.nikolai.softarex.dto.ChangePasswordRequest;
-import com.nikolai.softarex.dto.LoginCredentialsRequest;
+import com.nikolai.softarex.dto.ChangePasswordDto;
+import com.nikolai.softarex.dto.LoginDto;
 import com.nikolai.softarex.exception.*;
 import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.model.User;
-import com.nikolai.softarex.util.CookieUtil;
 import com.nikolai.softarex.util.ExceptionMessageUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,18 +13,14 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 
@@ -38,8 +33,6 @@ public class SecurityService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final JwtService jwtService;
-
     private final AuthenticationManager authenticationManager;
 
     private final EmailService emailService;
@@ -48,17 +41,16 @@ public class SecurityService {
     @Autowired
     public SecurityService(UserService userService,
                            PasswordEncoder passwordEncoder,
-                           JwtService jwtService, AuthenticationManager authenticationManager,
+                           AuthenticationManager authenticationManager,
                            EmailService emailService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.emailService = emailService;
     }
 
 
-    @Transactional
+
     public void register(User user, HttpServletRequest emailRequest) throws UserAlreadyExistException, MessagingException {
         var email = user.getEmail();
 
@@ -91,7 +83,7 @@ public class SecurityService {
     }
 
 
-    public Authentication authenticate(LoginCredentialsRequest credentials) throws AuthenticationException,
+    public Authentication authenticate(LoginDto credentials) throws AuthenticationException,
             UserNotVerifyException {
         var email = credentials.getEmail();
         var authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -108,7 +100,7 @@ public class SecurityService {
     }
 
 
-    public void changePassword(ChangePasswordRequest passwords, HttpServletRequest emailRequest) throws MessagingException {
+    public void changePassword(ChangePasswordDto passwords, HttpServletRequest emailRequest) throws MessagingException {
         var email = passwords.getUserEmail();
         var user = userService.findByEmail(email)
                 .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(email)));
@@ -125,29 +117,5 @@ public class SecurityService {
 
         emailService.sendUpdatePasswordEmail(user, emailRequest.getRequestURL().toString());
     }
-
-
-    public boolean validateToken(Optional<String> token, UserDetails user) {
-        return token.filter(s -> jwtService.validateToken(s, user)).isPresent();
-    }
-
-    public String[] refreshTokens(UserDetails user) {
-        return jwtService.createTokens(user);
-    }
-
-    public String[] createTokens(UserDetails user) {
-        return jwtService.createTokens(user);
-    }
-
-
-    public static ResponseCookie[] createJwtCookies(String[] tokens, String domain) {
-        var jwtCookie = CookieUtil.createJwtCookie(tokens[0], domain);
-        var refreshJwtCookie = CookieUtil.createRefreshJwtCookie(tokens[1], domain);
-
-        return new ResponseCookie[]{
-                jwtCookie, refreshJwtCookie
-        };
-    }
-
 
 }

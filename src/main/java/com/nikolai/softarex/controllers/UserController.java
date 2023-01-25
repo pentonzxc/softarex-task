@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 
@@ -45,7 +46,6 @@ public class UserController {
     public Integer addField(
             @RequestBody QuestionnaireFieldDto fieldDto,
             @PathVariable(value = "email", required = true) String email) {
-//        QuestionnaireField fieldDto = null;
 
         var user = userService.findByEmail(email)
                 .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(email)));
@@ -59,25 +59,30 @@ public class UserController {
 
     @RequestMapping(value = "/{email}/fields", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public List<QuestionnaireField> getFields(@PathVariable(value = "email", required = true)
+    public List<QuestionnaireFieldDto> getFields(@PathVariable(value = "email", required = true)
                                                  String email) {
 
         var user = userService.findByEmail(email)
                 .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(email)));
 
-        return user.getQuestionnaireFields();
+        return user.getQuestionnaireFields()
+                .stream()
+                .map(fieldMapper::convertEntityToDto)
+                .collect(Collectors.toList());
     }
 
 
     @RequestMapping(value = "/{email}/responses", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public List<QuestionnaireResponse> getResponses(@PathVariable(value = "email", required = true)
-                                                 String email) {
+    public Object getResponses(@PathVariable(value = "email", required = true)
+                               String email) {
         var user = userService.findByEmail(email)
                 .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(email)));
 
-        return  user.getQuestionnaireResponses();
-
+        return user.getQuestionnaireResponses()
+                .stream()
+                .map(QuestionnaireResponse::getData)
+                .collect(Collectors.toList());
     }
 
 

@@ -6,14 +6,13 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class QuestionnaireResponseMapper
+public class ResponseMapper
         implements EntityMapper<QuestionnaireResponse , QuestionnaireResponseDto> {
 
 
     @Override
     public QuestionnaireResponse convertDtoToEntity(QuestionnaireResponseDto dto) {
         var entity = new QuestionnaireResponse();
-        entity.setData(dto.getData());
 
         return entity;
     }
@@ -21,7 +20,7 @@ public class QuestionnaireResponseMapper
     @Override
     public QuestionnaireResponseDto convertEntityToDto(QuestionnaireResponse entity) {
         var dto = new QuestionnaireResponseDto();
-        dto.setData(entity.getData());
+//        dto.setData(entity.getData());
 
         return dto;
     }

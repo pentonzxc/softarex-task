@@ -12,6 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class QuestionnaireDto {
-    private Integer id;
     private List<QuestionnaireField> fieldList;
 }

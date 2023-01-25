@@ -22,6 +22,6 @@ public class QuestionnaireServiceImpl implements QuestionnaireService {
     @Transactional
     public Optional<QuestionnaireDto> findById(Integer id) {
         var userOpt = userService.findById(id);
-        return userOpt.map(user -> new QuestionnaireDto(id, user.getQuestionnaireFields()));
+        return userOpt.map(user -> new QuestionnaireDto(user.getQuestionnaireFields()));
     }
 }

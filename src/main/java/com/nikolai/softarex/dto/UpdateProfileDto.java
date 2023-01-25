@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateProfileRequest {
+public class UpdateProfileDto {
     private String oldEmail;
 
     private String newEmail;

@@ -1,7 +1,7 @@
 package com.nikolai.softarex.controllers;
 
-import com.nikolai.softarex.dto.ChangePasswordRequest;
-import com.nikolai.softarex.dto.UpdateProfileRequest;
+import com.nikolai.softarex.dto.ChangePasswordDto;
+import com.nikolai.softarex.dto.UpdateProfileDto;
 import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.service.SecurityService;
 import jakarta.mail.MessagingException;
@@ -30,17 +30,16 @@ public class ProfileController {
         this.securityService = securityService;
     }
 
-
     @RequestMapping("/updateProfile")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest profile) {
-        userService.updateProfile(profile);
+    public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileDto profile) {
+//        userService.updateProfile(profile);
         return ResponseEntity.ok().build();
     }
 
 
     @RequestMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest passwords,
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDto passwords,
                                             HttpServletRequest request) throws MessagingException {
         securityService.changePassword(passwords, request);
         return ResponseEntity.ok().build();

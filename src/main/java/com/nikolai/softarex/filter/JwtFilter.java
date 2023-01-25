@@ -1,8 +1,6 @@
 package com.nikolai.softarex.filter;
 
 import com.nikolai.softarex.exception.InvalidTokenException;
-import com.nikolai.softarex.interfaces.UserService;
-import com.nikolai.softarex.model.User;
 import com.nikolai.softarex.service.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -12,8 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,25 +20,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.Optional;
 
 @Component
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
-
-    private final UserService userService;
-
     private final JwtService jwtService;
-
-    private AuthenticationManager authenticationManager;
 
     private static final String COOKIES_MATCHER = "^(token)|(refresh_token)$";
 
-
     @Autowired
-    public JwtFilter(UserService userService, JwtService jwtService) {
-        this.userService = userService;
+    public JwtFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
@@ -54,12 +45,6 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-
-//        if(!request.getRequestURL().equals("http://localhost:8080/v1/api/auth/validate")){
-//            filterChain.doFilter(request , response);
-//            return;
-//        }
 
 
         var cookies = Arrays.stream(request.getCookies())
@@ -77,8 +62,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
         try {
-            Optional<User> userOpt = userService.findByEmail(jwtService.getUsernameFromToken(firstToken.getValue()));
-            userDetails = userOpt.orElse(null);
+            var username = jwtService.getUsernameFromToken(firstToken.getValue());
+            userDetails = new UnknownUserDetails(username);
         } catch (JwtException e) {
             filterChain.doFilter(request, response);
             return;
@@ -109,5 +94,49 @@ public class JwtFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
+    }
+
+
+    private class UnknownUserDetails implements UserDetails {
+        private String username;
+
+        public UnknownUserDetails(String username) {
+            this.username = username;
+        }
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return null;
+        }
+
+        @Override
+        public String getPassword() {
+            return null;
+        }
+
+        @Override
+        public String getUsername() {
+            return username;
+        }
+
+        @Override
+        public boolean isAccountNonExpired() {
+            return false;
+        }
+
+        @Override
+        public boolean isAccountNonLocked() {
+            return false;
+        }
+
+        @Override
+        public boolean isCredentialsNonExpired() {
+            return false;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return false;
+        }
     }
 }
