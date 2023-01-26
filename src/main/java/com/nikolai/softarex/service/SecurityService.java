@@ -96,6 +96,8 @@ public class SecurityService {
         if (!user.isActive()) {
             throw new UserNotVerifyException();
         }
+
+
         return authentication;
     }
 

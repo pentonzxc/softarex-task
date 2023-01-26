@@ -13,7 +13,7 @@ public class CookieUtil {
         return ResponseCookie.from("token", token)
                 .domain(domain)
                 .path("/")
-                .maxAge(Duration.buildByDays(3).getMilliseconds())
+                .maxAge(Duration.buildByDays(3).getMilliseconds() / 1000)
                 .build();
     }
 
@@ -21,7 +21,7 @@ public class CookieUtil {
         return ResponseCookie.from("refresh_token", token)
                 .domain(domain)
                 .path("/")
-                .maxAge(Duration.buildByDays(9).getMilliseconds())
+                .maxAge(Duration.buildByDays(14).getMilliseconds() / 1000)
                 .build();
     }
 

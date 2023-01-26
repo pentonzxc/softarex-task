@@ -9,6 +9,10 @@ public class LoginDto {
 
     String password;
 
-    Boolean rememberMe;
+    boolean rememberMe;
 
+
+    public boolean rememberMe() {
+        return rememberMe;
+    }
 }

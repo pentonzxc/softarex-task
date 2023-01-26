@@ -26,8 +26,8 @@ spring:
 
 jwt:
   secret-key: softarex
-  expire-time: 172800
-  refresh-expire-time: 518400
+  expire-time: 259200
+  refresh-expire-time: 1209600
 logging:
   level:
     com.nikolai.softarex: debug

@@ -74,14 +74,18 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> login(@RequestBody
                                    LoginDto credentials) {
+        var responseBuilder = ResponseEntity.ok();
         var authentication = securityService.authenticate(credentials);
 
         var tokens = jwtHelper.createRefreshAndAccessToken((UserDetails) authentication.getPrincipal());
+
         var cookies = CookieUtil.createJwtCookies(tokens, domain);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookies[0].toString(), cookies[1].toString())
-                .build();
+        responseBuilder = credentials.rememberMe() ?
+                responseBuilder.header(HttpHeaders.SET_COOKIE, cookies[0].toString(), cookies[1].toString()) :
+                responseBuilder.header(HttpHeaders.SET_COOKIE, cookies[0].toString());
+
+        return responseBuilder.build();
     }
 
     @RequestMapping(value = "/validate", method = RequestMethod.GET)
@@ -99,8 +103,8 @@ public class AuthController {
             var cookies = CookieUtil.createJwtCookies(tokens, domain);
             responseBuilder = responseBuilder.header(
                     HttpHeaders.SET_COOKIE,
-                    cookies[0].toString(),
-                    cookies[1].toString());
+                    cookies[0].toString()
+            );
         }
         return responseBuilder.body(user.getId());
     }

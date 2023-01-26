@@ -103,6 +103,7 @@ public class JwtService {
     }
 
 
+
     private Claims getAllClaimsFromToken(String token) {
         return (Claims) Jwts.parser().setSigningKey(secretKey).parse(token).getBody();
     }
@@ -115,6 +116,7 @@ public class JwtService {
                     token, refreshToken
             };
         }
+
 
         public boolean validateToken(Optional<String> token, UserDetails user) {
             return token.filter(s -> JwtService.this.validateToken(s, user)).isPresent();
