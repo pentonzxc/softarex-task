@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nikolai.urusov@gmail.com
+    password: jgwydydsnoreepvr
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+
+
+
+
+jwt:
+  secret-key: softarex
+  expire-time: 259200
+  refresh-expire-time: 1209600
+logging:
+  level:
+    com.nikolai.softarex: debug
+
+cookies:
+  domain: localhost
+
+
+
+

@@ -1,0 +1,58 @@
+-- FIRST VERSION CREATE A SCHEMA
+CREATE  SCHEMA IF NOT EXISTS softarex_task;
+
+-- SECOND VERSION
+
+CREATE TABLE IF NOT EXISTS softarex_task."user"
+(
+    id           SERIAL PRIMARY KEY,
+    email        TEXT        NOT NULL UNIQUE,
+    password     VARCHAR(16) NOT NULL,
+    first_name   TEXT,
+    last_name    TEXT,
+    phone_number TEXT,
+    is_active    BOOLEAN DEFAULT FALSE,
+    verification_code text
+);
+
+-- THIRD VERSION
+
+CREATE TYPE softarex_task.field_type as ENUM (
+    'SINGLE LINE TEXT',
+    'MULTI LINE TEXT',
+    'RADIO BUTTON',
+    'CHECKBOX',
+    'COMBOBOX','DATE');
+
+-- FOURTH VERSION
+
+CREATE TABLE IF NOT EXISTS softarex_task.questionnaire_field
+(
+    id         SERIAL PRIMARY KEY,
+    label      TEXT                     NOT NULL,
+    required   BOOLEAN,
+    is_active  BOOLEAN,
+    type       text NOT NULL,
+    properties text,
+    user_id    INT REFERENCES softarex_task."user" (id)
+);
+
+
+-- SIX VERSION
+
+CREATE TABLE IF NOT EXISTS softarex_task.questionnaire_response
+(
+    id   SERIAL,
+    data text
+);
+
+-- FIFTH VERSION
+
+CREATE VIEW softarex_task.questionnaire AS
+(
+SELECT f.label, f.type, f.properties, f.is_active, f.required
+from softarex_task."user"
+         join softarex_task.field f on "user".id = f.user_id);
+
+
+

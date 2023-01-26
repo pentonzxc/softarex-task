@@ -1,0 +1,16 @@
+.container__wrapper{
+    background-color: whitesmoke;
+}
+
+@media all and (max-width: 500px) {
+    .container__wrapper {
+        font-size: 10px;
+    }
+}
+
+@media all and (min-width: 567px) {
+    .container__wrapper {
+        font-size: 13px;
+    }
+}
+    
