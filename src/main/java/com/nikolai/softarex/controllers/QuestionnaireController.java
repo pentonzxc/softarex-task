@@ -1,21 +1,18 @@
 package com.nikolai.softarex.controllers;
 
-import com.nikolai.softarex.dto.AnswerDto;
 import com.nikolai.softarex.dto.QuestionnaireDto;
 import com.nikolai.softarex.dto.QuestionnaireResponseDto;
 import com.nikolai.softarex.exception.QuestionnaireNotFoundException;
 import com.nikolai.softarex.exception.UserNotFoundException;
-import com.nikolai.softarex.interfaces.QuestionnaireResponseService;
 import com.nikolai.softarex.interfaces.QuestionnaireService;
 import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.mapper.EntityMapper;
 import com.nikolai.softarex.model.QuestionnaireResponse;
-import com.nikolai.softarex.model.User;
+import com.nikolai.softarex.service.SocketService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/api/questionnaire")
@@ -25,11 +22,14 @@ public class QuestionnaireController {
 
     private final UserService userService;
 
+    private final SocketService socketService;
+
     private final EntityMapper<QuestionnaireResponse, QuestionnaireResponseDto> responseMapper;
 
-    public QuestionnaireController(QuestionnaireService questionnaireService, UserService userService, EntityMapper<QuestionnaireResponse, QuestionnaireResponseDto> responseMapper) {
+    public QuestionnaireController(QuestionnaireService questionnaireService, UserService userService, SocketService socketService, EntityMapper<QuestionnaireResponse, QuestionnaireResponseDto> responseMapper) {
         this.questionnaireService = questionnaireService;
         this.userService = userService;
+        this.socketService = socketService;
         this.responseMapper = responseMapper;
     }
 
@@ -54,8 +54,11 @@ public class QuestionnaireController {
                                             Integer id) {
         var user = userService.findById(id).orElseThrow(UserNotFoundException::new);
         var response = new QuestionnaireResponse();
+
         response.setData(responseDto);
         user.addQuestionnaireResponse(response);
+
         userService.save(user);
+        socketService.notifyUser(user.getEmail());
     }
 }

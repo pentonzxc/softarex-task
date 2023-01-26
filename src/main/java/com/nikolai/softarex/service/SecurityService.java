@@ -7,9 +7,9 @@ import com.nikolai.softarex.exception.*;
 import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.model.User;
 import com.nikolai.softarex.util.ExceptionMessageUtil;
+import com.nikolai.softarex.util.SecurityContextUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,4 +118,9 @@ public class SecurityService {
         emailService.sendUpdatePasswordEmail(user, emailRequest.getRequestURL().toString());
     }
 
+
+    public User authenticatedUser(){
+        var userDetails = SecurityContextUtil.retrieveUserDetails();
+        return userService.findByEmail(userDetails.getUsername()).orElseThrow(UserNotFoundException::new);
+    }
 }

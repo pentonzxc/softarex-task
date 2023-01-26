@@ -5,6 +5,8 @@ import com.nikolai.softarex.interfaces.QuestionnaireFieldService;
 import com.nikolai.softarex.model.QuestionnaireField;
 import com.nikolai.softarex.repository.QuestionnaireFieldRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,13 +34,13 @@ private final QuestionnaireFieldRepository fieldRepository;
     }
 
     @Override
-    public List<QuestionnaireField> findAll() {
-        return fieldRepository.findAll();
+    public Optional<QuestionnaireField> findById(Integer id) {
+        return fieldRepository.findById(id);
     }
 
     @Override
-    public Optional<QuestionnaireField> findById(Integer id) {
-        return fieldRepository.findById(id);
+    public Page<QuestionnaireField> findByUserId(Integer id , Pageable page) {
+        return fieldRepository.findByUserId(id , page);
     }
 
 

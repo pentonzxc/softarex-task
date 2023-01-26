@@ -3,21 +3,21 @@ package com.nikolai.softarex.service;
 import com.nikolai.softarex.interfaces.QuestionnaireResponseService;
 import com.nikolai.softarex.model.QuestionnaireResponse;
 import com.nikolai.softarex.repository.QuestionnaireResponseRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class QuestionnaireResponseImpl implements QuestionnaireResponseService {
-    private QuestionnaireResponseRepository repository;
+    private final QuestionnaireResponseRepository repository;
 
-    @Override
-    public List<QuestionnaireResponse> findAll() {
-        return repository.findAll();
+    public QuestionnaireResponseImpl(QuestionnaireResponseRepository repository) {
+        this.repository = repository;
     }
 
+
     @Override
-    public void save(QuestionnaireResponse response) {
-        repository.save(response);
+    public Page<QuestionnaireResponse> findByUserId(int user_id, Pageable pageable) {
+        return repository.findByUserId(user_id, pageable);
     }
 }

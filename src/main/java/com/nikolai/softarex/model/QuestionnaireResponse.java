@@ -14,6 +14,7 @@ public class QuestionnaireResponse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Integer id;
 
     @Convert(converter = JsonArrayConverter.class)

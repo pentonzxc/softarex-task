@@ -8,7 +8,6 @@ import com.nikolai.softarex.model.User;
 import com.nikolai.softarex.service.JwtService;
 import com.nikolai.softarex.service.SecurityService;
 import com.nikolai.softarex.util.CookieUtil;
-import com.nikolai.softarex.util.SecurityContextUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -89,7 +88,8 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> validateToken(@CookieValue(name = "token", required = false) String token,
                                            @CookieValue(name = "refresh_token", required = false) String refreshToken) {
-        var user = SecurityContextUtil.retrieveUserDetails();
+        var user = securityService.authenticatedUser();
+        var responseBuilder = ResponseEntity.ok();
         log.debug("validate refresh token - email - {}", user.getUsername());
 
         boolean validate = jwtHelper.validateToken(Optional.ofNullable(token), user);
@@ -97,11 +97,12 @@ public class AuthController {
         if (!validate) {
             var tokens = jwtHelper.createRefreshAndAccessToken(user);
             var cookies = CookieUtil.createJwtCookies(tokens, domain);
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookies[0].toString(), cookies[1].toString())
-                    .body(user.getUsername());
+            responseBuilder = responseBuilder.header(
+                    HttpHeaders.SET_COOKIE,
+                    cookies[0].toString(),
+                    cookies[1].toString());
         }
-        return ResponseEntity.ok().body(user.getUsername());
+        return responseBuilder.body(user.getId());
     }
 
 }
