@@ -6,6 +6,7 @@ import { useUser } from "../context/UserProvider";
 import LoginPage from "../pages/login/LoginPage";
 import UserContext from "../context/UserProvider";
 import status from "http-status";
+import { Nav } from "react-bootstrap";
 
 export default function AuthRoute() {
   const context = useUser();
@@ -13,6 +14,8 @@ export default function AuthRoute() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isTokenValid, setIsTokenValid] = useState(null);
+
+
 
   useEffect(() => {
     const controller = new AbortController();
@@ -39,10 +42,10 @@ export default function AuthRoute() {
           setIsTokenValid(true);
           return response.text();
         })
-        .then((email) => {
-          const emailOpt = localStorage.getItem("email");
-          if (!emailOpt || emailOpt !== email) {
-            localStorage.setItem("email", email);
+        .then((id) => {
+          const idOpt = localStorage.getItem("user_id");
+          if (!idOpt || idOpt !== id) {
+            localStorage.setItem("user_id", id);
           }
         })
         .catch((error) => {
@@ -64,7 +67,7 @@ export default function AuthRoute() {
   return (
     <>
       {isLoading && <div>Loading...</div>}
-      {isTokenValid === true && <Outlet />}
+      {isTokenValid === true && <Outlet/>}
       {isTokenValid === false && <Navigate to="/login" />}
     </>
   );

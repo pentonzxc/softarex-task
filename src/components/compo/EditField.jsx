@@ -1,27 +1,19 @@
 import React from "react";
-import { useState, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { useState, useCallback } from "react";
 
-export default function AddField(props) {
-  const id = localStorage.getItem("user_id");
+export default function EditField({ edit,item, id }) {
   const status = require("http-status");
 
-  const initialFieldData = {
-    id: null,
-    label: "",
-    type: "SINGLE_LINE_TEXT",
-    options: "",
-    required: "false",
-    active: "false",
-  };
+  const initialFieldData = JSON.parse(JSON.stringify(item));
 
   const [fieldData, setFieldData] = useState(initialFieldData);
 
   const updateFieldData = useCallback(
     (type) => (event) => {
       if (type === "required" || type === "active") {
-        setFieldData({ ...fieldData, [type]: event.target.checked});
+        setFieldData({ ...fieldData, [type]: event.target.checked });
       } else {
         setFieldData({ ...fieldData, [type]: event.target.value });
       }
@@ -29,10 +21,9 @@ export default function AddField(props) {
     [fieldData]
   );
 
-  const addField = () => {
-    console.log(fieldData);
-    fetch(`http://localhost:8080/v1/api/user/${id}/addField`, {
-      method: "POST",
+  const editField = () => {
+    fetch(`http://localhost:8080/v1/api/field/edit/${id}`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
@@ -42,15 +33,11 @@ export default function AddField(props) {
     })
       .then((response) => {
         console.log(response);
-        if (response.status === status.CREATED) {
-          return response.text();
-        } else {
-          throw new Error("Field not added");
+        if (response.status === status.OK) {
+          edit(fieldData);
+        } else {    
+          throw new Error("Field isn't edited");
         }
-      })
-      .then((id) => {
-        fieldData.id = id;
-        props.add(fieldData);
       })
       .catch((error) => {
         console.log(error);
@@ -59,44 +46,40 @@ export default function AddField(props) {
 
   const formHandler = (e) => {
     e.preventDefault();
-    addField();
+    
+
+    editField();
   };
 
   return (
     <div>
       <button
         type="button"
-        className="btn btn-sm btn-primary"
+        className="btn"
         data-bs-toggle="modal"
-        data-bs-target="#addModal"
+        data-bs-target={"#editModal" + id}
       >
-        <span className="d-flex align-items-center justify-content-center">
-          <FontAwesomeIcon
-            icon={faPlus}
-            style={{ color: "white", marginRight: 5 }}
-          />
-          ADD FIELD
-        </span>
+        <FontAwesomeIcon icon={faPenToSquare} style={{ color: "gray" }} />
       </button>
       <div
         className="modal fade"
-        id="addModal"
+        id={"editModal" + id}
         tabIndex="-1"
-        aria-labelledby="addModalLabel"
+        aria-labelledby="editModalLabel"
         aria-hidden="true"
       >
         <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title" id="addModalLabel">
-                Create field
+              <h5 className="modal-title" id="editModalLabel">
+                Edit field
               </h5>
               {/* <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button> */}
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button> */}
             </div>
             <div className="modal-body">
               <form>
@@ -155,9 +138,9 @@ export default function AddField(props) {
                       type="checkbox"
                       onChange={updateFieldData("required")}
                       value={fieldData.required}
-                      id="isRequired"
+                      id="required"
                     />
-                    <label className="form-check-label" htmlFor="isRequired">
+                    <label className="form-check-label" htmlFor="required">
                       Required
                     </label>
                   </div>
@@ -167,9 +150,9 @@ export default function AddField(props) {
                       type="checkbox"
                       value={fieldData.active}
                       onChange={updateFieldData("active")}
-                      id="isActive"
+                      id="active"
                     />
-                    <label className="form-check-label" htmlFor="isActive">
+                    <label className="form-check-label" htmlFor="active">
                       Is active
                     </label>
                   </div>
@@ -182,7 +165,7 @@ export default function AddField(props) {
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
                 onClick={() => {
-                  setFieldData(initialFieldData);
+                  setFieldData(item);
                 }}
               >
                 Close
@@ -190,6 +173,7 @@ export default function AddField(props) {
               <button
                 type="button"
                 className="btn btn-primary"
+                data-bs-dismiss="modal"
                 onClick={formHandler}
               >
                 Save changes
