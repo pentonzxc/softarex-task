@@ -2,6 +2,7 @@ package com.nikolai.softarex.service;
 
 import com.nikolai.softarex.interfaces.UserService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
@@ -30,12 +31,6 @@ public class JwtService {
     @PostConstruct
     protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-    }
-
-    private UserService userService;
-
-    public JwtService(UserService userService) {
-        this.userService = userService;
     }
 
 
@@ -84,7 +79,7 @@ public class JwtService {
     }
 
 
-    public boolean validateToken(String token, String username) {
+    public boolean validateToken(String token, String username) throws JwtException {
         if (!StringUtils.hasText(token)) {
             return false;
         }
@@ -93,7 +88,7 @@ public class JwtService {
         return usernameFromToken.equals(username) && !this.isTokenExpired(token);
     }
 
-    public boolean validateToken(String token, UserDetails userDetails) {
+    public boolean validateToken(String token, UserDetails userDetails) throws JwtException {
         if (!StringUtils.hasText(token)) {
             return false;
         }
@@ -101,7 +96,6 @@ public class JwtService {
 
         return userDetails != null && usernameFromToken.equals(userDetails.getUsername()) && !this.isTokenExpired(token);
     }
-
 
 
     private Claims getAllClaimsFromToken(String token) {

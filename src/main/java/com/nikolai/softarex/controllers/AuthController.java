@@ -72,8 +72,7 @@ public class AuthController {
     @RequestMapping(value = "/login", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> login(@RequestBody
-                                   LoginDto credentials) {
+    public ResponseEntity<?> login(@RequestBody LoginDto credentials) {
         var responseBuilder = ResponseEntity.ok();
         var authentication = securityService.authenticate(credentials);
 

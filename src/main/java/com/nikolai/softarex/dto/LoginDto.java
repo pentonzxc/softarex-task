@@ -1,18 +1,19 @@
 package com.nikolai.softarex.dto;
 
 
+import lombok.Data;
 import lombok.Value;
 
 @Value
 public class LoginDto {
-    String email;
+    private String email;
 
-    String password;
+    private String password;
 
-    boolean rememberMe;
+    private boolean rememberMe;
 
-
-    public boolean rememberMe() {
+    public boolean rememberMe(){
         return rememberMe;
     }
+
 }

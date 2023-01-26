@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserService userService;
+    private final UserService userService;
 
 
     @Autowired

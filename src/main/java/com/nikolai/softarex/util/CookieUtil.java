@@ -34,6 +34,25 @@ public class CookieUtil {
         };
     }
 
+
+    public ResponseCookie[] createInvalidJwtCookies(String domain) {
+        var token = ResponseCookie.from("token", "")
+                .domain(domain)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        var refreshToken = ResponseCookie.from("refresh_token", "")
+                .domain(domain)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return new ResponseCookie[]{
+                token, refreshToken
+        };
+    }
+
     public Cookie createInvalidJwtServletCookie(String domain) {
         var token = new Cookie("token", "");
         token.setPath("/");

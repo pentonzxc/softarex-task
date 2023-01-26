@@ -10,17 +10,23 @@ public class UserMapper implements EntityMapper<User, UserDto> {
 
     @Override
     public User convertDtoToEntity(UserDto dto) {
-        var user = new User();
-        user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
-        user.setLastName(dto.getLastName());
-        user.setFirstName(dto.getFirstName());
-        user.setPhoneNumber(dto.getPhoneNumber());
-        return user;
+        var entity = new User();
+        entity.setEmail(dto.getEmail());
+        entity.setPassword(dto.getPassword());
+        entity.setLastName(dto.getLastName());
+        entity.setFirstName(dto.getFirstName());
+        entity.setPhoneNumber(dto.getPhoneNumber());
+        return entity;
     }
 
     @Override
     public UserDto convertEntityToDto(User entity) {
-        return null;
+        return new UserDto(
+                entity.getEmail(),
+                entity.getPassword(),
+                entity.getFirstName(),
+                entity.getLastName(),
+                entity.getPhoneNumber()
+        );
     }
 }

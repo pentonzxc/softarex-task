@@ -41,12 +41,6 @@ public class FieldController {
         fieldService.remove(id);
     }
 
-//    @RequestMapping(value = "/editActive/{id}", method = RequestMethod.PATCH)
-//    @ResponseStatus(HttpStatus.OK)
-//    public void disable(@PathVariable(value = "id", required = true) Integer id) {
-//        var field = fieldService.findById(id).orElseThrow(FieldNotFoundException::new);
-//        field.setActive(!field.isActive());
-//    }
 
 
 }

@@ -72,7 +72,6 @@ public class SecurityService {
         emailService.sendVerificationEmail(user, emailRequest.getRequestURL().toString());
     }
 
-    // exception for invalid code
     public void verifyRegister(String verificationCode) throws InvalidVerificationCode {
         var userOpt = userService.findByVerificationCode(verificationCode);
 
@@ -96,7 +95,6 @@ public class SecurityService {
         if (!user.isActive()) {
             throw new UserNotVerifyException();
         }
-
 
         return authentication;
     }

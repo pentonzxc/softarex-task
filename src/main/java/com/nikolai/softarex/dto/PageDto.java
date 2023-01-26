@@ -1,10 +1,8 @@
 package com.nikolai.softarex.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
+@Value
 public class PageDto<T> {
     private int totalPages;
     private long totalElements;

@@ -1,11 +1,12 @@
 package com.nikolai.softarex.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
 
 @Data
+@NoArgsConstructor
 public class QuestionnaireResponseDto {
-    public List<Object> list;
+    private List<Object> data;
 }

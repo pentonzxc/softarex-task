@@ -12,33 +12,33 @@ public class FieldMapper implements EntityMapper<QuestionnaireField, Questionnai
 
     @Override
     public QuestionnaireField convertDtoToEntity(QuestionnaireFieldDto dto) {
-        var field = new QuestionnaireField();
+        var entity = new QuestionnaireField();
 
-        field.setId(dto.getId());
-        field.setLabel(dto.getLabel());
-        field.setType(dto.getType());
-        field.setOptions(
+        entity.setId(dto.getId());
+        entity.setLabel(dto.getLabel());
+        entity.setType(dto.getType());
+        entity.setOptions(
                 Arrays.stream(dto.getOptions().split("\n")).toList()
         );
-        field.setActive(dto.isActive());
-        field.setRequired(dto.isRequired());
+        entity.setActive(dto.isActive());
+        entity.setRequired(dto.isRequired());
 
-        return field;
+        return entity;
     }
 
     @Override
     public QuestionnaireFieldDto convertEntityToDto(QuestionnaireField entity) {
-        var field = new QuestionnaireFieldDto();
+        var dto = new QuestionnaireFieldDto();
 
-        field.setId(entity.getId());
-        field.setActive(entity.isActive());
-        field.setRequired(entity.isRequired());
-        field.setLabel(entity.getLabel());
-        field.setType(entity.getType());
-        field.setOptions(entity.getOptions().stream().reduce(
+        dto.setId(entity.getId());
+        dto.setActive(entity.isActive());
+        dto.setRequired(entity.isRequired());
+        dto.setLabel(entity.getLabel());
+        dto.setType(entity.getType());
+        dto.setOptions(entity.getOptions().stream().reduce(
                 (f, s) -> f.concat("\n").concat(s)
         ).orElse(""));
 
-        return field;
+        return dto;
     }
 }

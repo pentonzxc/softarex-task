@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailService {
 
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Autowired
     public EmailService(JavaMailSender mailSender) {

@@ -10,10 +10,13 @@ import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.mapper.EntityMapper;
 import com.nikolai.softarex.model.QuestionnaireField;
 import com.nikolai.softarex.model.QuestionnaireResponse;
+import com.nikolai.softarex.util.ExceptionMessageUtil;
 import com.nikolai.softarex.util.PageUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import static com.nikolai.softarex.util.ExceptionMessageUtil.*;
 
 
 @RestController
@@ -51,7 +54,8 @@ public class UserController {
             @PathVariable(value = "id", required = true) int userId
     ) {
 
-        var user = userService.findById(userId).orElseThrow(UserNotFoundException::new);
+        var user = userService.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userNotFoundMsg(userId)));
         var field = fieldMapper.convertDtoToEntity(fieldDto);
 
         field.setUser(user);

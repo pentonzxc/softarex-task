@@ -9,6 +9,7 @@ import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.mapper.EntityMapper;
 import com.nikolai.softarex.model.QuestionnaireResponse;
 import com.nikolai.softarex.service.SocketService;
+import com.nikolai.softarex.util.ExceptionMessageUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,13 +39,11 @@ public class QuestionnaireController {
     @ResponseStatus(HttpStatus.OK)
     public QuestionnaireDto questionnaire(@PathVariable(name = "id", required = true)
                                           Integer id) {
-        var questionnaireOpt = questionnaireService.findById(id);
 
-        if (questionnaireOpt.isEmpty()) {
-            throw new QuestionnaireNotFoundException();
-        }
-
-        return questionnaireOpt.get();
+        return questionnaireService.findById(id)
+                .orElseThrow(() -> new QuestionnaireNotFoundException(
+                        ExceptionMessageUtil.questionnaireNotFound(id)
+                ));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)

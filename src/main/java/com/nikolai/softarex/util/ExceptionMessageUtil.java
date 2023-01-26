@@ -9,16 +9,16 @@ public class ExceptionMessageUtil {
         return String.format("User with email %s - not found", email);
     }
 
-    public static String userAlreadyExistMsg(String email){
-        return String.format("User with email %s -  already exist" , email);
+    public static String userAlreadyExistMsg(String email) {
+        return String.format("User with email %s -  already exist", email);
     }
 
-    public static String userNotFoundMsg(Integer id){
-        return String.format("User with id %d -  already exist" , id);
+    public static String userNotFoundMsg(Integer id) {
+        return String.format("User with id %d -  already exist", id);
     }
 
-    public static String verificationCodeNotFoundMsg(){
-        return "Verification code not found";
+    public static String questionnaireNotFound(Integer id) {
+        return String.format("Questionnaire with id %d - not found", id);
     }
 
 
