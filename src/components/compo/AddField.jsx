@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import $ from "jquery";
 
 export default function AddField(props) {
   const id = localStorage.getItem("user_id");
@@ -10,7 +11,7 @@ export default function AddField(props) {
   const initialFieldData = {
     id: null,
     label: "",
-    type: "SINGLE_LINE_TEXT",
+    type: "",
     options: "",
     required: "false",
     active: "false",
@@ -21,7 +22,7 @@ export default function AddField(props) {
   const updateFieldData = useCallback(
     (type) => (event) => {
       if (type === "required" || type === "active") {
-        setFieldData({ ...fieldData, [type]: event.target.checked});
+        setFieldData({ ...fieldData, [type]: event.target.checked });
       } else {
         setFieldData({ ...fieldData, [type]: event.target.value });
       }
@@ -51,15 +52,30 @@ export default function AddField(props) {
       .then((id) => {
         fieldData.id = id;
         props.add(fieldData);
+        setFieldData(initialFieldData);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  const formHandler = (e) => {
-    e.preventDefault();
-    addField();
+  const formHandler = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.currentTarget.checkValidity() === false) {
+      {
+        event.currentTarget.classList.add("was-validated");
+        return;
+      }
+    } else {
+      console.log(32);
+      $("#addButton").attr("data-bs-dismiss", "modal");
+      $("#addButton").click();
+      $("#addModal").find("form").removeClass("was-validated");
+      $("#addButton").removeAttr("data-bs-dismiss");
+
+      addField();
+    }
   };
 
   return (
@@ -86,95 +102,95 @@ export default function AddField(props) {
         aria-hidden="true"
       >
         <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div className="modal-content">
+          <form className="modal-content" noValidate onSubmit={formHandler}>
             <div className="modal-header">
               <h5 className="modal-title" id="addModalLabel">
                 Create field
               </h5>
-              {/* <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button> */}
             </div>
             <div className="modal-body">
-              <form>
-                <div className="mb-3">
-                  <label htmlFor="label" className="form-label">
-                    Label
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="label"
-                    value={fieldData.label}
-                    onChange={updateFieldData("label")}
-                  />
-                </div>
+              <div className="mb-3">
+                <label htmlFor="label" className="form-label">
+                  Label
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="label"
+                  value={fieldData.label}
+                  onChange={updateFieldData("label")}
+                  required
+                />
+              </div>
 
-                <div className="mb-3">
-                  <label htmlFor="type" className="form-label">
-                    Type
+              <div className="mb-3">
+                <label htmlFor="type" className="form-label">
+                  Type
+                </label>
+                <select
+                  className="form-select"
+                  aria-label="Default select example"
+                  id="type"
+                  value={fieldData.type}
+                  onChange={updateFieldData("type")}
+                  required
+                >
+                  <option selected hidden disabled value="">
+                    Select type
+                  </option>
+                  <option value="SINGLE_LINE_TEXT">Single line text</option>
+                  <option value="MULTILINE_TEXT">Multiline text</option>
+                  <option value="RADIO_BUTTON">Radio button</option>
+                  <option value="CHECKBOX">Checkbox</option>
+                  <option value="COMBOBOX">Combobox</option>
+                  <option value="DATE">Date</option>
+                </select>
+              </div>
+              <div className="mb-3">
+                <div className="form-outline">
+                  <label className="form-label" htmlFor="textAreaExample">
+                    Options
                   </label>
-                  <select
-                    className="form-select "
-                    aria-label="Default select example"
-                    id="type"
-                    value={fieldData.type}
-                    onChange={updateFieldData("type")}
-                  >
-                    <option value="SINGLE_LINE_TEXT" selected>
-                      Single line text
-                    </option>
-                    <option value="MULTILINE_TEXT">Multiline text</option>
-                    <option value="RADIO_BUTTON">Radio button</option>
-                    <option value="CHECKBOX">Checkbox</option>
-                    <option value="COMBOBOX">Combobox</option>
-                    <option value="DATE">Date</option>
-                  </select>
+                  <textarea
+                    className="form-control"
+                    id="textAreaExample"
+                    rows="6"
+                    value={fieldData.options}
+                    onChange={updateFieldData("options")}
+                    required={
+                      fieldData.type === "RADIO_BUTTON" ||
+                      fieldData.type === "CHECKBOX" ||
+                      fieldData.type === "COMBOBOX"
+                    }
+                  ></textarea>
                 </div>
-                <div className="mb-3">
-                  <div className="form-outline">
-                    <label className="form-label" htmlFor="textAreaExample">
-                      Options
-                    </label>
-                    <textarea
-                      className="form-control"
-                      id="textAreaExample"
-                      rows="6"
-                      value={fieldData.options}
-                      onChange={updateFieldData("options")}
-                    ></textarea>
-                  </div>
+              </div>
+              <div className="d-flex  justify-content-center gap-3">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    onChange={updateFieldData("required")}
+                    value={fieldData.required}
+                    id="isRequired"
+                  />
+                  <label className="form-check-label" htmlFor="isRequired">
+                    Required
+                  </label>
                 </div>
-                <div className="d-flex  justify-content-center gap-3">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      onChange={updateFieldData("required")}
-                      value={fieldData.required}
-                      id="isRequired"
-                    />
-                    <label className="form-check-label" htmlFor="isRequired">
-                      Required
-                    </label>
-                  </div>
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      value={fieldData.active}
-                      onChange={updateFieldData("active")}
-                      id="isActive"
-                    />
-                    <label className="form-check-label" htmlFor="isActive">
-                      Is active
-                    </label>
-                  </div>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    value={fieldData.active}
+                    onChange={updateFieldData("active")}
+                    id="isActive"
+                  />
+                  <label className="form-check-label" htmlFor="isActive">
+                    Is active
+                  </label>
                 </div>
-              </form>
+              </div>
             </div>
             <div className="modal-footer">
               <button
@@ -187,15 +203,11 @@ export default function AddField(props) {
               >
                 Close
               </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={formHandler}
-              >
+              <button type="submit" className="btn btn-primary" id="addButton">
                 Save changes
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>
