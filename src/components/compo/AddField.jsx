@@ -31,7 +31,6 @@ export default function AddField(props) {
   );
 
   const addField = () => {
-    console.log(fieldData);
     fetch(`http://localhost:8080/v1/api/user/${id}/addField`, {
       method: "POST",
       headers: {
@@ -50,7 +49,8 @@ export default function AddField(props) {
         }
       })
       .then((id) => {
-        fieldData.id = id;
+        setFieldData({ ...fieldData, id: id });
+
         props.add(fieldData);
         setFieldData(initialFieldData);
       })
@@ -68,7 +68,6 @@ export default function AddField(props) {
         return;
       }
     } else {
-      console.log(32);
       $("#addButton").attr("data-bs-dismiss", "modal");
       $("#addButton").click();
       $("#addModal").find("form").removeClass("was-validated");

@@ -43,10 +43,10 @@ export default function FieldsPage() {
           if (response.status === 200) {
             console.log("Field deleted");
             setFields((fields) => fields.filter((field) => field.id !== id));
-            setTotalElements(totalElements - 1);
-            if (totalElements % rowsPerPage === 1) {
+            if (totalElements % rowsPerPage === 1 && currentPage !== 0) {
               setCurrentPage(currentPage - 1);
             }
+            setTotalElements(totalElements - 1);
           } else {
             throw new Error("Failed to delete field");
           }
