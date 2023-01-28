@@ -15,8 +15,6 @@ export default function AuthRoute() {
   const [isLoading, setIsLoading] = useState(true);
   const [isTokenValid, setIsTokenValid] = useState(null);
 
-
-
   useEffect(() => {
     const controller = new AbortController();
     const validate = async ({ conroller }) => {
@@ -37,6 +35,10 @@ export default function AuthRoute() {
         .then((response) => {
           console.log(response);
           if (response.status !== status.OK) {
+            if (localStorage.getItem("user_id")) {
+              localStorage.removeItem("user_id");
+              localStorage.setItem("token_state", "invalid");
+            }
             throw new Error("Tokens are invalid");
           }
           setIsTokenValid(true);
@@ -52,7 +54,7 @@ export default function AuthRoute() {
           console.error(error);
           setIsTokenValid(false);
         });
-        setIsLoading(false);
+      setIsLoading(false);
     };
     validate({ controller });
     return () => {
@@ -66,9 +68,21 @@ export default function AuthRoute() {
 
   return (
     <>
-      {isLoading && <div>Loading...</div>}
-      {isTokenValid === true && <Outlet/>}
-      {isTokenValid === false && <Navigate to="/login" />}
+      {isLoading && (
+        <div class="d-flex justify-content-center align-items-center h-100 w-100">
+          <div
+            class="spinner-border ml-auto"
+            role="status"
+            aria-hidden="true"
+          ></div>
+        </div>
+      )}
+      {isTokenValid === true && <Outlet />}
+      {isTokenValid === false && (
+        <Navigate
+          to="/login"
+        />
+      )}
     </>
   );
 }

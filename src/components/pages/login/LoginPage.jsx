@@ -1,20 +1,31 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./style.css";
+import $ from "jquery";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  var EMAIL_REGEX =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-  const [validation, setValidation] = useState(false);
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (Cookies.get("token")) {
       navigate("/", { replace: true });
     }
+
+    return () => {
+      localStorage.removeItem("token_state");
+    };
   }, []);
+  const location = useLocation();
+  // const showTokenExpiredMsg = location.state?.message;
+  // const setShowTokenExpiredMsg = location.state?.setMessage;
+  // console.log(showTokenExpiredMsg);
+
+  setTimeout(function () {
+    if ($("#token__expired").length > 0) {
+      $("#token__expired").remove();
+    }
+  }, 5000);
 
   const status = require("http-status");
 
@@ -58,6 +69,14 @@ export default function LoginPage() {
       })
       .catch((error) => {
         console.log(error);
+        console.log("Login failed");
+        $("#error_msg").remove();
+        $("#card__wrapper").prepend(
+          `<div class ="alert alert-danger alert-dismissible fade show" role="alert" id="error_msg">
+          <strong>Login failed!</strong> Your email or password is incorrect.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`
+        );
       });
   }, [userData]);
 
@@ -69,14 +88,37 @@ export default function LoginPage() {
         event.currentTarget.classList.add("was-validated");
         return;
       }
+    } else {
+      login();
     }
-    login();
   }
 
   return (
-    <div className="container__wrapper min-vh-100 min-vw-100">
+    <div className="container__wrapper h-100 w-100">
       <div className="container d-flex align-items-center justify-content-center min-vh-100 text-center">
-        <div className="col-9 col-sm-7 col-md-5 col-lg-5 col-xxl-3">
+        <div
+          className="col-9 col-sm-7 col-md-5 col-lg-5 col-xxl-3"
+          id="card__wrapper"
+        >
+          {localStorage.getItem("token_state") === "invalid" && (
+            <div
+              className="alert alert-warning alert-dismissible fade show"
+              role="alert"
+              id="token__expired"
+            >
+              <strong>Token expired!</strong> Please login again.
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+                onClick={() => {
+                  localStorage.removeItem("token_state");
+                }}
+              ></button>
+            </div>
+          )}
+
           <div className="card" style={{ minHeight: 300 }}>
             <div className="card-body">
               <h5 className="card-title">SoftArex</h5>
@@ -86,7 +128,7 @@ export default function LoginPage() {
                 noValidate
                 onSubmit={formHandler}
               >
-                <div className="needs-validation form-group form-floating">
+                <div className="form-group form-floating">
                   <input
                     type="email"
                     placeholder="Email"
