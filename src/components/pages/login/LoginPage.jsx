@@ -94,8 +94,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container__wrapper h-100 w-100">
-      <div className="container d-flex align-items-center justify-content-center min-vh-100 text-center">
+    <div className="container__wrapper">
+      <div className="container d-flex align-items-center justify-content-center  text-center">
         <div
           className="col-9 col-sm-7 col-md-5 col-lg-5 col-xxl-3"
           id="card__wrapper"

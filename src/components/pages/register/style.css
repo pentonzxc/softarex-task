@@ -1,6 +1,6 @@
-.container__wrapper{
+/* .container__wrapper{
     background-color: whitesmoke;
-}
+} */
 
 @media all and (max-width: 500px) {
     .container__wrapper {

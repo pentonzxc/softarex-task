@@ -25,7 +25,7 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="h-100 w-100 bg-light">
+    <div className="min-vh-100 w-100 bg-light d-flex flex-column">
       <nav className="navbar navbar-expand-lg bg-white border-bottom border-1">
         <div className="container">
           <a className="navbar-brand">Logo</a>
@@ -81,8 +81,10 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
+      <div className="containe my-lg-auto p-0">
 
       <Outlet />
+      </div>
     </div>
   );
 }

@@ -13,8 +13,8 @@ export default function AddField(props) {
     label: "",
     type: "",
     options: "",
-    required: "false",
-    active: "false",
+    required: false,
+    active: false,
   };
 
   const [fieldData, setFieldData] = useState(initialFieldData);
@@ -36,7 +36,7 @@ export default function AddField(props) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(fieldData),
+      body: JSON.stringify(resolveRequestBody()),
       credentials: "include",
       mode: "cors",
     })
@@ -73,10 +73,22 @@ export default function AddField(props) {
       $("#addModal").find("form").removeClass("was-validated");
       $("#addButton").removeAttr("data-bs-dismiss");
 
+
       addField();
     }
   };
 
+  function resolveRequestBody() {
+    if (
+      fieldData.type === "RADIO_BUTTON" ||
+      fieldData.type === "CHECKBOX" ||
+      fieldData.type === "COMBOBOX"
+    ) {
+      return { ...fieldData, options: fieldData.options };
+    } else {
+      return { ...fieldData, options: "" };
+    }
+  }
   return (
     <div>
       <button
@@ -89,7 +101,7 @@ export default function AddField(props) {
           <FontAwesomeIcon
             icon={faPlus}
             style={{ color: "white", marginRight: 5 }}
-          />
+          /> 
           ADD FIELD
         </span>
       </button>
@@ -170,8 +182,8 @@ export default function AddField(props) {
                     className="form-check-input"
                     type="checkbox"
                     onChange={updateFieldData("required")}
-                    value={fieldData.required}
                     id="isRequired"
+                    checked={fieldData.required}
                   />
                   <label className="form-check-label" htmlFor="isRequired">
                     Required
@@ -181,9 +193,9 @@ export default function AddField(props) {
                   <input
                     className="form-check-input"
                     type="checkbox"
-                    value={fieldData.active}
                     onChange={updateFieldData("active")}
                     id="isActive"
+                    checked={fieldData.active}
                   />
                   <label className="form-check-label" htmlFor="isActive">
                     Is active
@@ -197,6 +209,7 @@ export default function AddField(props) {
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
                 onClick={() => {
+                  $("#addModal").find("form").removeClass("was-validated");
                   setFieldData(initialFieldData);
                 }}
               >

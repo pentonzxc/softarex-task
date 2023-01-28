@@ -113,7 +113,7 @@ export default function FieldsPage() {
   }, [currentPage, rowsPerPage, totalElements]);
 
   return (
-    <div className="custom__border container col-6 mt-lg-5 bg-white p-0">
+    <div className="custom__border container col-6  p-0 bg-white mb-lg-5">
       <div className="d-flex justify-content-between px-3 py-2">
         <span className=" fs-5">Fields</span>
         <AddField add={addField} />
@@ -137,10 +137,10 @@ export default function FieldsPage() {
                   <td className="col-sm-4 col-auto">{field.label}</td>
                   <td className="col-sm-4 col-auto">{field.type}</td>
                   <td className="col-sm-2 col-auto">
-                    {field.active ? "true" : "false"}
+                    {field.required ? "true" : "false"}
                   </td>
                   <td className="col-sm-2 col-auto">
-                    {field.required ? "true" : "false"}
+                    {field.active ? "true" : "false"}
                   </td>
                   <td className="col-sm-2 col-auto">
                     <div className="d-flex flex-row justify-content-end">

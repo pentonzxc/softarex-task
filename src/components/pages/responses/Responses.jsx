@@ -1,9 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faCaretLeft } from "@fortawesome/free-solid-svg-icons";
 import { faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import SockJS from "sockjs-client";
@@ -87,9 +84,9 @@ export default function Responses() {
   }
 
   return (
-    <div className="custom__border container col-6 mt-lg-5 bg-white p-0">
+    <div className="custom__border container col-6 mb-lg-5 bg-white p-0">
       <div className="d-flex justify-content-between px-3 py-2">
-        <span className=" fs-5">Fields</span>
+        <span className="fs-5">Fields</span>
         {/* <AddField add={addField} /> */}
       </div>
       <hr className="col-xs-12 mt-0" />
