@@ -1,4 +1,4 @@
-package com.nikolai.softarex.model;
+package com.nikolai.softarex.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nikolai.softarex.converter.JsonArrayConverter;

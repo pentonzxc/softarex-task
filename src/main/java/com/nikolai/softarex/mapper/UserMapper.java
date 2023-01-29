@@ -1,7 +1,7 @@
 package com.nikolai.softarex.mapper;
 
 import com.nikolai.softarex.dto.UserDto;
-import com.nikolai.softarex.model.User;
+import com.nikolai.softarex.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component

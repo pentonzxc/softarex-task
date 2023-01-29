@@ -1,7 +1,7 @@
 package com.nikolai.softarex.mapper;
 
 import com.nikolai.softarex.dto.QuestionnaireFieldDto;
-import com.nikolai.softarex.model.QuestionnaireField;
+import com.nikolai.softarex.entity.QuestionnaireField;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

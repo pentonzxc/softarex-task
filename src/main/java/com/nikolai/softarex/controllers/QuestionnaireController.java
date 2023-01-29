@@ -1,16 +1,13 @@
 package com.nikolai.softarex.controllers;
 
-import com.nikolai.softarex.dto.QuestionnaireDto;
-import com.nikolai.softarex.dto.QuestionnaireResponseDto;
-import com.nikolai.softarex.exception.QuestionnaireNotFoundException;
-import com.nikolai.softarex.exception.UserNotFoundException;
-import com.nikolai.softarex.interfaces.QuestionnaireService;
+import com.nikolai.softarex.entity.QuestionnaireResponse;
 import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.mapper.EntityMapper;
-import com.nikolai.softarex.model.QuestionnaireResponse;
-import com.nikolai.softarex.service.SocketService;
-import com.nikolai.softarex.util.ExceptionMessageUtil;
+import com.nikolai.softarex.presenter.ContentResponse;
+import com.nikolai.softarex.service.NotifyService;
+import com.nikolai.softarex.service.QuestionnaireService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,41 +20,36 @@ public class QuestionnaireController {
 
     private final UserService userService;
 
-    private final SocketService socketService;
+    private final NotifyService notifyService;
 
-    private final EntityMapper<QuestionnaireResponse, QuestionnaireResponseDto> responseMapper;
+    private final EntityMapper<QuestionnaireResponse, List<Object>> responseMapper;
 
-    public QuestionnaireController(QuestionnaireService questionnaireService, UserService userService, SocketService socketService, EntityMapper<QuestionnaireResponse, QuestionnaireResponseDto> responseMapper) {
+    public QuestionnaireController(QuestionnaireService questionnaireService,
+                                   UserService userService,
+                                   NotifyService notifyService,
+                                   EntityMapper<QuestionnaireResponse, List<Object>> responseMapper) {
         this.questionnaireService = questionnaireService;
         this.userService = userService;
-        this.socketService = socketService;
+        this.notifyService = notifyService;
         this.responseMapper = responseMapper;
     }
 
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public QuestionnaireDto questionnaire(@PathVariable(name = "id", required = true)
-                                          Integer id) {
-
-        return questionnaireService.findById(id)
-                .orElseThrow(() -> new QuestionnaireNotFoundException(
-                        ExceptionMessageUtil.questionnaireNotFound(id)
-                ));
+    public ResponseEntity<?> questionnaire(@PathVariable(name = "id", required = true)
+                                           Integer id) {
+        return new ContentResponse<>().response(HttpStatus.OK, questionnaireService.questionnaireFromUserId(id));
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void createQuestionnaireResponse(@RequestBody List<Object> responseDto,
-                                            @PathVariable(name = "id", required = true)
-                                            Integer id) {
-        var user = userService.findById(id).orElseThrow(UserNotFoundException::new);
-        var response = new QuestionnaireResponse();
+    public ResponseEntity<?> createQuestionnaireResponse(@RequestBody List<Object> responseDto,
+                                                         @PathVariable(name = "id", required = true)
+                                                         Integer id) {
+        var response = responseMapper.convertDtoToEntity(responseDto);
+        questionnaireService.createQuestionnaireResponse(id, response);
 
-        response.setData(responseDto);
-        user.addQuestionnaireResponse(response);
-
-        userService.save(user);
-        socketService.notifyUser(user.getEmail());
+        return new ContentResponse<>().response(HttpStatus.OK, null);
     }
 }

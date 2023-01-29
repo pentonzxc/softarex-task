@@ -1,6 +1,6 @@
 package com.nikolai.softarex.dto;
 
-import com.nikolai.softarex.model.QuestionnaireField;
+import com.nikolai.softarex.entity.QuestionnaireField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

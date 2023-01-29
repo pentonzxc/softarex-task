@@ -1,27 +1,23 @@
 package com.nikolai.softarex.mapper;
 
-import com.nikolai.softarex.dto.QuestionnaireResponseDto;
-import com.nikolai.softarex.model.QuestionnaireResponse;
+import com.nikolai.softarex.entity.QuestionnaireResponse;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 
 @Component
 public class ResponseMapper
-        implements EntityMapper<QuestionnaireResponse , QuestionnaireResponseDto> {
-
-
+        implements EntityMapper<QuestionnaireResponse, List<Object>> {
     @Override
-    public QuestionnaireResponse convertDtoToEntity(QuestionnaireResponseDto dto) {
+    public QuestionnaireResponse convertDtoToEntity(List<Object> dto) {
         var entity = new QuestionnaireResponse();
-        entity.setData(dto.getData());
+        entity.setData(dto);
         return entity;
     }
 
     @Override
-    public QuestionnaireResponseDto convertEntityToDto(QuestionnaireResponse entity) {
-        var dto = new QuestionnaireResponseDto();
-        dto.setData(entity.getData());
-
-        return dto;
+    public List<Object> convertEntityToDto(QuestionnaireResponse entity) {
+        return entity.getData();
     }
 }

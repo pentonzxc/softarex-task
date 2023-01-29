@@ -1,14 +1,14 @@
 package com.nikolai.softarex.controllers;
 
 import com.nikolai.softarex.dto.QuestionnaireFieldDto;
-import com.nikolai.softarex.exception.FieldNotFoundException;
+import com.nikolai.softarex.entity.QuestionnaireField;
 import com.nikolai.softarex.interfaces.QuestionnaireFieldService;
-import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.mapper.EntityMapper;
 import com.nikolai.softarex.mapper.FieldMapper;
-import com.nikolai.softarex.model.QuestionnaireField;
+import com.nikolai.softarex.presenter.ContentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,18 +29,21 @@ public class FieldController {
 
     @RequestMapping(value = "/edit/{id}", method = RequestMethod.PATCH)
     @ResponseStatus(HttpStatus.OK)
-    public void edit(@RequestBody QuestionnaireFieldDto fieldDto) {
+    public ResponseEntity<?> edit(@RequestBody QuestionnaireFieldDto fieldDto) {
         var field = fieldMapper.convertDtoToEntity(fieldDto);
         fieldService.update(field);
+
+        return new ContentResponse<>().response(HttpStatus.OK, null);
     }
 
 
     @RequestMapping(value = "/remove/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    public void remove(@PathVariable(value = "id", required = true) Integer id) {
+    public ResponseEntity<?> remove(@PathVariable(value = "id", required = true) Integer id) {
         fieldService.remove(id);
-    }
 
+        return new ContentResponse<>().response(HttpStatus.OK, null);
+    }
 
 
 }

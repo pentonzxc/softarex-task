@@ -1,7 +1,7 @@
 package com.nikolai.softarex.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nikolai.softarex.model.QuestionnaireField;
+import com.nikolai.softarex.entity.QuestionnaireField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

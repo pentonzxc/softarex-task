@@ -1,7 +1,7 @@
 package com.nikolai.softarex.service;
 
 import com.nikolai.softarex.interfaces.QuestionnaireResponseService;
-import com.nikolai.softarex.model.QuestionnaireResponse;
+import com.nikolai.softarex.entity.QuestionnaireResponse;
 import com.nikolai.softarex.repository.QuestionnaireResponseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

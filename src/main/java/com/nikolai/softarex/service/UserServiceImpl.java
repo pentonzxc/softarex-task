@@ -1,19 +1,14 @@
 package com.nikolai.softarex.service;
 
-import com.nikolai.softarex.dto.ChangePasswordDto;
-import com.nikolai.softarex.dto.UpdateProfileDto;
-import com.nikolai.softarex.exception.EmailNotFoundException;
+import com.nikolai.softarex.entity.QuestionnaireField;
+import com.nikolai.softarex.entity.QuestionnaireResponse;
 import com.nikolai.softarex.interfaces.UserService;
-import com.nikolai.softarex.model.User;
+import com.nikolai.softarex.entity.User;
 import com.nikolai.softarex.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
-import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -34,6 +29,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(User user) {
         userRepository.save(user);
+    }
+
+    @Override
+    public void saveImmediately(User user) {
+        userRepository.saveAndFlush(user);
+    }
+
+    @Override
+    public QuestionnaireField addField(User user , QuestionnaireField field) {
+        user.addQuestionnaireField(field);
+        saveImmediately(user);
+        return field;
     }
 
     @Override

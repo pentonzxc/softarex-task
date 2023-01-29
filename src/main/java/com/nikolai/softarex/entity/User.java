@@ -1,4 +1,4 @@
-package com.nikolai.softarex.model;
+package com.nikolai.softarex.entity;
 
 
 import jakarta.persistence.*;
@@ -64,7 +64,6 @@ public class User implements UserDetails {
     public List<QuestionnaireResponse> getQuestionnaireResponses() {
         return questionnaireResponses;
     }
-
 
 
     @Override
