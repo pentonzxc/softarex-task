@@ -59,6 +59,8 @@ public class UserController {
             @RequestParam(name = "page", required = false) Integer page,
             @PathVariable(name = "id", required = true) int userId
     ) {
+
+
         return new ContentResponse<>().response(
                 HttpStatus.OK, pageService.createFieldPage(page, size, userId)
         );

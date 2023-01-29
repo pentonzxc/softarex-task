@@ -8,7 +8,6 @@ import com.nikolai.softarex.mapper.EntityMapper;
 import com.nikolai.softarex.presenter.CookieResponse;
 import com.nikolai.softarex.presenter.ResponseBuilder;
 import com.nikolai.softarex.service.SecurityService;
-import com.nikolai.softarex.util.CookieUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,9 +71,9 @@ public class AuthController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> login(@RequestBody LoginDto credentials) {
-        var tokens = securityService.login(credentials);
+        var jwtCookies = securityService.login(credentials);
 
-        return new CookieResponse<>(responseBuilder, CookieUtil.createJwtCookies(tokens, domain)).response(HttpStatus.OK, null);
+        return new CookieResponse<>(responseBuilder, jwtCookies).response(HttpStatus.OK, null);
     }
 
     @RequestMapping(value = "/validate", method = RequestMethod.GET)
@@ -81,9 +81,11 @@ public class AuthController {
     public ResponseEntity<?> verifyAccessToken(@CookieValue(name = "token", required = false) String accessToken,
                                                @CookieValue(name = "refresh_token", required = false) String refreshToken) {
         var user = securityService.authenticatedUser();
-        var tokens = new String[]{securityService.verifyIfRequireUpdateToken(user, accessToken), refreshToken};
+        var updatedToken = securityService.verifyIfRequireUpdateToken(user, accessToken, refreshToken);
 
-        return new CookieResponse<>(responseBuilder, CookieUtil.createJwtCookies(tokens, domain)).response(HttpStatus.OK, null);
+        return new CookieResponse<>(responseBuilder, new ResponseCookie[]{
+                updatedToken
+        }).response(HttpStatus.OK, user.getId());
     }
 
 }

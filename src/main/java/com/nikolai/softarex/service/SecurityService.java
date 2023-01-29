@@ -6,6 +6,7 @@ import com.nikolai.softarex.dto.LoginDto;
 import com.nikolai.softarex.entity.User;
 import com.nikolai.softarex.exception.*;
 import com.nikolai.softarex.interfaces.UserService;
+import com.nikolai.softarex.util.CookieUtil;
 import com.nikolai.softarex.util.ExceptionMessageUtil;
 import com.nikolai.softarex.util.SecurityContextUtil;
 import jakarta.mail.MessagingException;
@@ -13,6 +14,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,8 +25,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 
@@ -41,6 +42,9 @@ public class SecurityService {
     private final JwtService.JwtServiceHelper jwtHelper;
 
     private final EmailService emailService;
+
+    @Value("${cookies.domain}")
+    private String domain;
 
 
     @Autowired
@@ -78,22 +82,27 @@ public class SecurityService {
     }
 
 
-    public String[] login(LoginDto dto) {
+    public ResponseCookie[] login(LoginDto dto) {
         var authentication = authenticate(dto);
 
         var tokens = jwtHelper.createRefreshAndAccessToken((UserDetails) authentication.getPrincipal());
+        if (dto.rememberMe()) {
+            return CookieUtil.createJwtCookies(tokens, domain);
+        }
 
-        return dto.rememberMe() ? tokens : Arrays.copyOfRange(tokens, 0, 1);
+        return new ResponseCookie[]{
+                CookieUtil.createJwtCookie(tokens[0], domain)
+        };
     }
 
 
-    public String verifyIfRequireUpdateToken(UserDetails user, String token) {
+    public ResponseCookie verifyIfRequireUpdateToken(UserDetails user, String token, String refreshToken) {
         var updateStatement = jwtHelper.updateRequired(token, user);
 
-        if (updateStatement) {
-            return jwtHelper.createRefreshAndAccessToken(user)[0];
+        if (updateStatement && refreshToken != null) {
+            return CookieUtil.createJwtCookie(jwtHelper.createRefreshAndAccessToken(user)[0], domain);
         }
-        return token;
+        return CookieUtil.createJwtCookie(token, domain);
     }
 
     public void verifyRegister(String verificationCode) throws InvalidVerificationCode {
