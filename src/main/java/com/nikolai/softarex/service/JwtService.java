@@ -1,10 +1,6 @@
 package com.nikolai.softarex.service;
 
-import com.nikolai.softarex.interfaces.UserService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -114,6 +110,15 @@ public class JwtService {
 
         public boolean validateToken(Optional<String> token, UserDetails user) {
             return token.filter(s -> JwtService.this.validateToken(s, user)).isPresent();
+        }
+
+
+        public boolean updateRequired(String token, UserDetails user) {
+            try {
+                return JwtService.this.validateToken(token, user);
+            } catch (ExpiredJwtException ex) {
+                return false;
+            }
         }
     }
 }

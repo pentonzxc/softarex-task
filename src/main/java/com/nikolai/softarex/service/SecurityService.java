@@ -3,9 +3,9 @@ package com.nikolai.softarex.service;
 
 import com.nikolai.softarex.dto.ChangePasswordDto;
 import com.nikolai.softarex.dto.LoginDto;
+import com.nikolai.softarex.entity.User;
 import com.nikolai.softarex.exception.*;
 import com.nikolai.softarex.interfaces.UserService;
-import com.nikolai.softarex.model.User;
 import com.nikolai.softarex.util.ExceptionMessageUtil;
 import com.nikolai.softarex.util.SecurityContextUtil;
 import jakarta.mail.MessagingException;
@@ -19,8 +19,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 
 import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 
@@ -35,6 +38,8 @@ public class SecurityService {
 
     private final AuthenticationManager authenticationManager;
 
+    private final JwtService.JwtServiceHelper jwtHelper;
+
     private final EmailService emailService;
 
 
@@ -42,22 +47,22 @@ public class SecurityService {
     public SecurityService(UserService userService,
                            PasswordEncoder passwordEncoder,
                            AuthenticationManager authenticationManager,
-                           EmailService emailService) {
+                           JwtService jwtService, EmailService emailService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.jwtHelper = jwtService.new JwtServiceHelper();
         this.emailService = emailService;
     }
 
 
-
-    public void register(User user, HttpServletRequest emailRequest) throws UserAlreadyExistException, MessagingException {
+    public void register(User user, HttpServletRequest emailRequest)
+            throws UserAlreadyExistException, MessagingException {
         var email = user.getEmail();
-
-
         if (!(userService.isEmailAvailable(email))) {
             throw new UserAlreadyExistException(ExceptionMessageUtil.userAlreadyExistMsg(email));
         }
+
         var verificationCode = RandomStringUtils.random(64);
         var encodePassword = passwordEncoder.encode(user.getPassword());
 
@@ -70,6 +75,25 @@ public class SecurityService {
         userService.save(user);
 
         emailService.sendVerificationEmail(user, emailRequest.getRequestURL().toString());
+    }
+
+
+    public String[] login(LoginDto dto) {
+        var authentication = authenticate(dto);
+
+        var tokens = jwtHelper.createRefreshAndAccessToken((UserDetails) authentication.getPrincipal());
+
+        return dto.rememberMe() ? tokens : Arrays.copyOfRange(tokens, 0, 1);
+    }
+
+
+    public String verifyIfRequireUpdateToken(UserDetails user, String token) {
+        var updateStatement = jwtHelper.updateRequired(token, user);
+
+        if (updateStatement) {
+            return jwtHelper.createRefreshAndAccessToken(user)[0];
+        }
+        return token;
     }
 
     public void verifyRegister(String verificationCode) throws InvalidVerificationCode {
@@ -119,7 +143,7 @@ public class SecurityService {
     }
 
 
-    public User authenticatedUser(){
+    public User authenticatedUser() {
         var userDetails = SecurityContextUtil.retrieveUserDetails();
         return userService.findByEmail(userDetails.getUsername()).orElseThrow(UserNotFoundException::new);
     }

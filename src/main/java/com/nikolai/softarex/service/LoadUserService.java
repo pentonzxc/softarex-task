@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class CustomUserDetailsService implements UserDetailsService {
+public class LoadUserService implements UserDetailsService {
 
     private final UserService userService;
 
 
     @Autowired
-    public CustomUserDetailsService(UserService userService) {
+    public LoadUserService(UserService userService) {
         this.userService = userService;
     }
 

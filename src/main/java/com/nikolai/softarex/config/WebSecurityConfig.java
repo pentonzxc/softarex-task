@@ -1,7 +1,7 @@
 package com.nikolai.softarex.config;
 
 import com.nikolai.softarex.filter.JwtFilter;
-import com.nikolai.softarex.service.CustomUserDetailsService;
+import com.nikolai.softarex.service.LoadUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -24,14 +24,14 @@ public class WebSecurityConfig {
 
     private JwtFilter jwtFilter;
 
-    private CustomUserDetailsService userDetailsService;
+    private LoadUserService userDetailsService;
 
     private AuthenticationEntryPoint failedAuthenticationPoint;
 
 
     @Autowired
     public WebSecurityConfig(JwtFilter jwtFilter,
-                             CustomUserDetailsService userDetailsService,
+                             LoadUserService userDetailsService,
                              @Qualifier("failedAuthHandler") AuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtFilter = jwtFilter;
         this.userDetailsService = userDetailsService;
