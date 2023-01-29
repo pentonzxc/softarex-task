@@ -56,9 +56,7 @@ export default function EditField({ edit, item, id }) {
     } else {
       $("#editButton" + id).attr("data-bs-dismiss", "modal");
       $("#editButton" + id).click();
-      $("#editModal" + id)
-        .find("form")
-        .removeClass("was-validated");
+      $("#editModal" + id).find("form").removeClass("was-validated");
       $("#editButton" + id).removeAttr("data-bs-dismiss");
 
       editField();

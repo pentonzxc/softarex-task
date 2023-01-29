@@ -2,6 +2,7 @@ import React from "react";
 import { nanoid } from "nanoid";
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useLocation } from "react-router-dom";
+import $ from "jquery";
 // import SockJS from "sockjs-client";
 // import { Client, Message } from "@stomp/stompjs";
 
@@ -19,14 +20,14 @@ export default function Questionnaire() {
   //   heartbeatOutgoing: 4000,
   // });
 
-
-
   // const [client, setClient] = useState(initialClient);
 
   const [questionnaire, setQuestionnaire] = useState([]);
   const [response, setResponse] = useState([]);
   const { id } = useParams();
   const location = useLocation();
+
+  const [requiredCheckboxes, setRequiredCheckboxes] = useState([]);
 
   const user_id = location.pathname.split("/")[2];
 
@@ -62,6 +63,11 @@ export default function Questionnaire() {
         });
         console.log(question);
         setQuestionnaire(question);
+        const requiredCheckboxes = question.filter((question) => {
+          return question.required === true && question.type === "CHECKBOX";
+        });
+
+        setRequiredCheckboxes(requiredCheckboxes);
       })
       .catch((error) => {
         console.log(error);
@@ -151,10 +157,7 @@ export default function Questionnaire() {
   //   stompClient.send("/user/", {}, JSON.stringify({ name: "John" }));
   // }
 
-
-
-  function handleSubmit(event) {
-    event.preventDefault();
+  function createQuestionnaire() {
     fetch(`http://localhost:8080/v1/api/questionnaire/${id}`, {
       method: "POST",
       cors: "cors",
@@ -180,13 +183,45 @@ export default function Questionnaire() {
       });
   }
 
+  function handleSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    requiredCheckboxes.forEach((checkbox) => {
+      if (checkbox.required) {
+        let checkboxes = $(
+          `input:checkbox[id^="option-${checkbox.unique_id}"]`
+        );
+
+        checkboxes.prop("required", true);
+
+        if (checkboxes.is(":checked")) {
+          checkboxes.prop("required", false);
+        }
+      }
+    });
+
+
+    
+    if (event.currentTarget.checkValidity() === false) {
+      event.currentTarget.classList.add("was-validated");
+    } else {
+      console.log("success");
+      // createQuestionnaire();
+    }
+  }
+
   return (
     <div className="container col-3 h-100 d-flex justify-content-center align-items-center mt-4">
       <div className="row">
         <div className="col">
           <div className="card">
             <div className="card-body">
-              <div className="row flex-column gap-3 mx-1">
+              <form
+                className="row flex-column gap-3 mx-1"
+                noValidate
+                onSubmit={handleSubmit}
+              >
                 {questionnaire.map((question, index) => {
                   return (
                     <div className="form-group" key={index}>
@@ -200,6 +235,7 @@ export default function Questionnaire() {
                                 key={option.unique_id}
                               >
                                 <input
+                                  required={question.required}
                                   className="form-check-input"
                                   type="radio"
                                   id={option.unique_id}
@@ -224,8 +260,8 @@ export default function Questionnaire() {
                         </div>
                       )}
                       {question.type === "CHECKBOX" && (
-                        <div>
-                          {question.options.map((option) => {
+                        <div id={question.unique_id + "checkbox"}>
+                          {question.options.map((option, index) => {
                             return (
                               <div
                                 className="form-check"
@@ -234,6 +270,7 @@ export default function Questionnaire() {
                                 <input
                                   className="form-check-input"
                                   type="checkbox"
+                                  id={`option-${question.unique_id}${index}`}
                                   value={option.option}
                                   onChange={updateResponse({
                                     label: question.label,
@@ -253,12 +290,16 @@ export default function Questionnaire() {
                         <select
                           className="form-select"
                           aria-label="Default select example"
+                          required={question.required}
                           onChange={updateResponse({
                             label: question.label,
                             unique_id: question.unique_id,
                             type: "DEFAULT",
                           })}
                         >
+                          <option selected hidden disabled value="">
+                            Select option
+                          </option>
                           {question.options.map((option) => {
                             return (
                               <option
@@ -275,6 +316,7 @@ export default function Questionnaire() {
                         <input
                           className="form-control"
                           type="date"
+                          required={question.required}
                           onChange={updateResponse({
                             label: question.label,
                             unique_id: question.unique_id,
@@ -284,9 +326,17 @@ export default function Questionnaire() {
                       )}
                       {question.type === "SINGLE_LINE_TEXT" && (
                         <input
-                          type="text"
+                          type={
+                            question.label.toLowerCase() === "email" ||
+                            question.label.toLowerCase() === "email address" ||
+                            question.label.toLowerCase() === "e-mail" ||
+                            question.label.toLowerCase() === "e-mail address"
+                              ? "email"
+                              : "text"
+                          }
                           className="form-control"
                           aria-describedby="emailHelp"
+                          required={question.required}
                           onChange={updateResponse({
                             label: question.label,
                             unique_id: question.unique_id,
@@ -298,6 +348,7 @@ export default function Questionnaire() {
                         <textarea
                           className="form-control"
                           id="exampleFormControlTextarea1"
+                          required={question.required}
                           rows="3"
                           onChange={updateResponse({
                             label: question.label,
@@ -311,13 +362,13 @@ export default function Questionnaire() {
                 })}
                 <div className="d-flex">
                   <button
+                    type="submit"
                     className="btn col-xxl-3 col-lg-6 col-12 btn-sm btn-primary"
-                    onClick={(e) => handleSubmit(e)}
                   >
                     Submit
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>
