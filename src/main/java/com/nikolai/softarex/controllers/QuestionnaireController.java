@@ -50,6 +50,6 @@ public class QuestionnaireController {
         var response = responseMapper.convertDtoToEntity(responseDto);
         questionnaireService.createQuestionnaireResponse(id, response);
 
-        return new ContentResponse<>().response(HttpStatus.OK, null);
+        return new ContentResponse<>().response(HttpStatus.CREATED, null);
     }
 }

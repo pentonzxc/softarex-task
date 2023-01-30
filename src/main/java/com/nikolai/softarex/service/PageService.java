@@ -28,7 +28,7 @@ public class PageService {
     }
 
 
-    public PageDto<?> createFieldPage(int page, int size, int userId) {
+    public PageDto<?> createFieldPage(Integer page, Integer size, int userId) {
         var pageable = PageUtil.createPage(page, size);
         var contentWrapper = fieldService.findAllByUserId(userId, pageable);
         var fields = contentWrapper.stream().map(fieldMapper::convertEntityToDto).toList();
@@ -37,7 +37,7 @@ public class PageService {
     }
 
 
-    public PageDto<?> createResponsePage(int page, int size, int userId) {
+    public PageDto<?> createResponsePage(Integer page, Integer size, int userId) {
         var pageable = PageUtil.createPage(page, size);
         var contentWrapper = responseService.findByUserId(userId, pageable);
         var responses = contentWrapper.stream().map(QuestionnaireResponse::getData).toList();

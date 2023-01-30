@@ -81,11 +81,15 @@ public class AuthController {
     public ResponseEntity<?> verifyAccessToken(@CookieValue(name = "token", required = false) String accessToken,
                                                @CookieValue(name = "refresh_token", required = false) String refreshToken) {
         var user = securityService.authenticatedUser();
-        var updatedToken = securityService.verifyIfRequireUpdateToken(user, accessToken, refreshToken);
+        var updatedTokenOpt = securityService.verifyIfRequireUpdateToken(user, accessToken, refreshToken);
 
-        return new CookieResponse<>(responseBuilder, new ResponseCookie[]{
-                updatedToken
-        }).response(HttpStatus.OK, user.getId());
+        if (updatedTokenOpt.isPresent()) {
+            return new CookieResponse<>(responseBuilder, new ResponseCookie[]{
+                    updatedTokenOpt.get()
+            }).response(HttpStatus.OK, user.getId());
+        }
+
+        return responseBuilder.response(HttpStatus.OK, user.getId());
     }
 
 }

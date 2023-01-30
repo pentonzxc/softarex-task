@@ -115,7 +115,7 @@ public class JwtService {
 
         public boolean updateRequired(String token, UserDetails user) {
             try {
-                return JwtService.this.validateToken(token, user);
+                return !JwtService.this.validateToken(token, user);
             } catch (ExpiredJwtException ex) {
                 return false;
             }

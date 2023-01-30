@@ -14,6 +14,7 @@ public class CookieUtil {
                 .domain(domain)
                 .path("/")
                 .maxAge(Duration.buildByDays(3).getMilliseconds() / 1000)
+//                .maxAge(60)
                 .build();
     }
 
@@ -22,6 +23,7 @@ public class CookieUtil {
                 .domain(domain)
                 .path("/")
                 .maxAge(Duration.buildByDays(14).getMilliseconds() / 1000)
+//                .maxAge(60)
                 .build();
     }
 

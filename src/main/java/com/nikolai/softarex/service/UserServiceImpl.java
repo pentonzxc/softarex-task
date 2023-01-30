@@ -1,10 +1,10 @@
 package com.nikolai.softarex.service;
 
 import com.nikolai.softarex.entity.QuestionnaireField;
-import com.nikolai.softarex.entity.QuestionnaireResponse;
-import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.entity.User;
+import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,6 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-
 
 
     @Autowired
@@ -37,10 +36,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public QuestionnaireField addField(User user , QuestionnaireField field) {
+    @Transactional
+    public QuestionnaireField addField(User user, QuestionnaireField field) {
         user.addQuestionnaireField(field);
-        saveImmediately(user);
-        return field;
+        this.saveImmediately(user);
+        var fields = user.getQuestionnaireFields();
+
+        return fields.get(fields.size() - 1);
     }
 
     @Override

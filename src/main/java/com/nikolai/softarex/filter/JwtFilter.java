@@ -3,6 +3,7 @@ package com.nikolai.softarex.filter;
 import com.nikolai.softarex.exception.InvalidTokenException;
 import com.nikolai.softarex.service.JwtService;
 import com.nikolai.softarex.util.SecurityContextUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,11 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,7 +22,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -60,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         validateJwtCookies(jwtCookies, userDetails);
 
-        SecurityContextUtil.authenticateRequest(userDetails , null , AuthorityUtils.NO_AUTHORITIES);
+        SecurityContextUtil.authenticateRequest(userDetails, null, AuthorityUtils.NO_AUTHORITIES);
         filterChain.doFilter(request, response);
     }
 
@@ -78,21 +75,35 @@ public class JwtFilter extends OncePerRequestFilter {
         return jwtCookie.length != 0 ? jwtCookie : null;
     }
 
-    private void validateJwtCookies(Cookie[] jwtCookies, UserDetails userDetails) {
-        Cookie firstToken = jwtCookies[0];
-        boolean isFirstInvalid = !jwtService.validateToken(firstToken.getValue(), userDetails);
+    private void validateJwtCookies(final Cookie[] jwtCookies, final UserDetails userDetails) {
+        final Cookie firstToken = jwtCookies[0];
+        boolean isFirstInvalid = true;
+        try {
+            isFirstInvalid = !jwtService.validateToken(firstToken.getValue(), userDetails);
+        } catch (ExpiredJwtException ignore) {
+
+        } catch (JwtException ex) {
+            throw new InvalidTokenException();
+        }
 
         log.debug("First token - {} : isInvalid - {}", firstToken.getName(), isFirstInvalid);
 
         if (jwtCookies.length == 1 && isFirstInvalid) {
             throw new InvalidTokenException();
-        } else if (jwtCookies.length == 2 && isFirstInvalid) {
-            Cookie secondToken = jwtCookies[1];
-            boolean isSecondInvalid = !jwtService.validateToken(secondToken.getValue(), userDetails);
+        } else if (jwtCookies.length == 2) {
+            final Cookie secondToken = jwtCookies[1];
+            boolean isSecondInvalid = true;
+            try {
+                isSecondInvalid = !jwtService.validateToken(secondToken.getValue(), userDetails);
+            } catch (ExpiredJwtException ignore) {
+
+            } catch (JwtException ex) {
+                throw new InvalidTokenException();
+            }
 
             log.debug("Second token - {} : isInvalid - {}", secondToken.getName(), isSecondInvalid);
 
-            if (!isSecondInvalid) {
+            if (isSecondInvalid) {
                 throw new InvalidTokenException();
             }
         }

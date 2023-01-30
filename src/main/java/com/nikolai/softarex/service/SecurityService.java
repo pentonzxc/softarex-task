@@ -26,6 +26,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 import static com.nikolai.softarex.util.ExceptionMessageUtil.emailNotFoundMsg;
 
 
@@ -96,13 +98,14 @@ public class SecurityService {
     }
 
 
-    public ResponseCookie verifyIfRequireUpdateToken(UserDetails user, String token, String refreshToken) {
-        var updateStatement = jwtHelper.updateRequired(token, user);
-
-        if (updateStatement && refreshToken != null) {
-            return CookieUtil.createJwtCookie(jwtHelper.createRefreshAndAccessToken(user)[0], domain);
+    public Optional<ResponseCookie> verifyIfRequireUpdateToken(UserDetails user, String token, String refreshToken) {
+        if (token == null && refreshToken != null) {
+            return Optional.of(
+                    CookieUtil.createJwtCookie(jwtHelper.createRefreshAndAccessToken(user)[0], domain)
+            );
         }
-        return CookieUtil.createJwtCookie(token, domain);
+
+        return Optional.empty();
     }
 
     public void verifyRegister(String verificationCode) throws InvalidVerificationCode {
