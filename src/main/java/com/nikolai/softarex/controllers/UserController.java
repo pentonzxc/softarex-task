@@ -8,12 +8,11 @@ import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.mapper.EntityMapper;
 import com.nikolai.softarex.presenter.ContentResponse;
 import com.nikolai.softarex.service.PageService;
+import com.nikolai.softarex.util.CommonUserMapperUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static com.nikolai.softarex.util.ExceptionMessageUtil.userNotFoundMsg;
 
 
 @RestController
@@ -41,20 +40,17 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> addField(
             @RequestBody QuestionnaireFieldDto fieldDto,
-            @PathVariable(value = "id", required = true) int userId
+            @PathVariable(name = "id", required = true) int userId
     ) {
-
-        var user = userService.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userNotFoundMsg(userId)));
         var field = fieldMapper.convertDtoToEntity(fieldDto);
 
-        return new ContentResponse<>().response(HttpStatus.CREATED, userService.addField(user, field).getId());
+        return new ContentResponse<>().response(HttpStatus.CREATED, userService.addField(userId, field).getId());
     }
 
 
     @RequestMapping(value = "/{id}/fields", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> getFields(
+    public ResponseEntity<?> fields(
             @RequestParam(name = "size", required = false) Integer size,
             @RequestParam(name = "page", required = false) Integer page,
             @PathVariable(name = "id", required = true) int userId
@@ -69,14 +65,25 @@ public class UserController {
 
     @RequestMapping(value = "/{id}/responses", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> getResponses(
+    public ResponseEntity<?> responses(
             @RequestParam(name = "size", required = false) Integer size,
             @RequestParam(name = "page", required = false) Integer page,
-            @PathVariable(value = "id", required = true) int userId
+            @PathVariable(name = "id", required = true) int userId
     ) {
 
         return new ContentResponse<>().response(
                 HttpStatus.OK, pageService.createResponsePage(page, size, userId)
+        );
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> user(@PathVariable(name = "id", required = true) int userId) {
+
+        return new ContentResponse<>().response(
+                HttpStatus.OK, CommonUserMapperUtil.userEntityToProfileDto(
+                        userService.findById(userId).orElseThrow(UserNotFoundException::new)
+                )
         );
     }
 

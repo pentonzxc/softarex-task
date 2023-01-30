@@ -1,5 +1,6 @@
 package com.nikolai.softarex.interfaces;
 
+import com.nikolai.softarex.dto.UpdateProfileDto;
 import com.nikolai.softarex.entity.QuestionnaireField;
 import com.nikolai.softarex.entity.QuestionnaireResponse;
 import com.nikolai.softarex.entity.User;
@@ -18,7 +19,11 @@ public interface UserService {
     QuestionnaireField addField(User user , QuestionnaireField field);
 
 
-//    void updateProfile(UpdateProfileDto profile);
+    QuestionnaireField addField(Integer userId , QuestionnaireField field);
+
+
+
+    void updateProfile(UpdateProfileDto profile);
 
 //    void updatePassword(ChangePasswordDto passwords);
 

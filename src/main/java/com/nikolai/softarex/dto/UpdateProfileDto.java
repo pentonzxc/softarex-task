@@ -1,7 +1,7 @@
 package com.nikolai.softarex.dto;
 
 
-import lombok.*;
+import lombok.Value;
 
 @Value
 public class UpdateProfileDto {
@@ -14,5 +14,4 @@ public class UpdateProfileDto {
     private String lastName;
 
     private String phoneNumber;
-
 }
