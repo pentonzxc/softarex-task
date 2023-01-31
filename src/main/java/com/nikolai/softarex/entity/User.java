@@ -31,12 +31,6 @@ public class User implements UserDetails {
 
     private String verificationCode;
 
-    public void setPasswordChange(String passwordChange) {
-        this.passwordChange = passwordChange;
-    }
-
-    @Transient
-    private String passwordChange;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionnaireField> questionnaireFields;
@@ -44,6 +38,11 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade =
             {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
     private List<QuestionnaireResponse> questionnaireResponses;
+
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY, optional = false)
+    private UserPasswordChange passwordChange;
 
 
     public void addQuestionnaireField(QuestionnaireField field) {
@@ -54,6 +53,18 @@ public class User implements UserDetails {
     public void removeQuestionnaireField(QuestionnaireField field) {
         questionnaireFields.remove(field);
         field.setUser(null);
+    }
+
+
+    public void setPasswordChange(UserPasswordChange passwordChange) {
+        if (passwordChange == null) {
+            if (this.passwordChange != null) {
+                this.passwordChange.setUser(this);
+            }
+        } else {
+            passwordChange.setUser(this);
+        }
+        this.passwordChange = passwordChange;
     }
 
     public void addQuestionnaireResponse(QuestionnaireResponse response) {
@@ -138,6 +149,11 @@ public class User implements UserDetails {
         return id;
     }
 
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -162,11 +178,13 @@ public class User implements UserDetails {
         return verificationCode;
     }
 
-    public String getPasswordChange() {
-        return passwordChange;
-    }
 
     public List<QuestionnaireField> getQuestionnaireFields() {
         return questionnaireFields;
     }
+
+    public UserPasswordChange getPasswordChange() {
+        return passwordChange;
+    }
+
 }

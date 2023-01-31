@@ -2,9 +2,11 @@ package com.nikolai.softarex.controllers;
 
 import com.nikolai.softarex.dto.ChangePasswordDto;
 import com.nikolai.softarex.dto.UpdateProfileDto;
+import com.nikolai.softarex.entity.UserPasswordChange;
 import com.nikolai.softarex.exception.UserNotFoundException;
 import com.nikolai.softarex.interfaces.UserService;
 import com.nikolai.softarex.presenter.ContentResponse;
+import com.nikolai.softarex.service.ChangePasswordService;
 import com.nikolai.softarex.service.SecurityService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,10 +25,16 @@ public class ProfileController {
 
     private final SecurityService securityService;
 
+    private final ChangePasswordService changePasswordService;
+
+
     @Autowired
-    public ProfileController(UserService userService, SecurityService securityService) {
+    public ProfileController(UserService userService,
+                             SecurityService securityService,
+                             ChangePasswordService changePasswordService) {
         this.userService = userService;
         this.securityService = securityService;
+        this.changePasswordService = changePasswordService;
     }
 
     @RequestMapping(value = "/updateProfile", method = RequestMethod.PUT)
@@ -40,11 +48,29 @@ public class ProfileController {
     }
 
 
-    @RequestMapping("/changePassword")
+    @RequestMapping(value = "/changePassword", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDto passwords,
+                                            @RequestParam(name = "id", required = true) int user_id,
                                             HttpServletRequest request) throws MessagingException {
-        securityService.changePassword(passwords, request);
-        return ResponseEntity.ok().build();
+        changePasswordService.changePassword(
+                userService.findById(user_id).orElseThrow(UserNotFoundException::new),
+                passwords,
+                request
+        );
+
+
+        return new ContentResponse<>().response(HttpStatus.OK, null);
+    }
+
+
+    @RequestMapping(value = "/changePassword/verify", method = RequestMethod.GET)
+    public ResponseEntity<?> verifyPasswordChange(@RequestParam(name = "code", required = true)
+                                                  String verificationCode) {
+        UserPasswordChange passwordChange = changePasswordService.verifyChangePassword(verificationCode);
+        userService.changePassword(passwordChange.getUser(), passwordChange);
+
+        return new ContentResponse<>().response(HttpStatus.OK, null);
     }
 
 

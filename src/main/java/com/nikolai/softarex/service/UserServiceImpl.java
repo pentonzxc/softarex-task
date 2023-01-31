@@ -3,6 +3,7 @@ package com.nikolai.softarex.service;
 import com.nikolai.softarex.dto.UpdateProfileDto;
 import com.nikolai.softarex.entity.QuestionnaireField;
 import com.nikolai.softarex.entity.User;
+import com.nikolai.softarex.entity.UserPasswordChange;
 import com.nikolai.softarex.exception.EmailNotFoundException;
 import com.nikolai.softarex.exception.UserNotFoundException;
 import com.nikolai.softarex.interfaces.UserService;
@@ -59,6 +60,17 @@ public class UserServiceImpl implements UserService {
         return addField(user, field);
     }
 
+    @Override
+    public void changePassword(User user, UserPasswordChange passwordChange) {
+        user.setPasswordChange(passwordChange);
+        user.setPassword(passwordChange.getPassword());
+
+        passwordChange.setPassword(null);
+        passwordChange.setVerificationCode(null);
+
+        userRepository.save(user);
+    }
+
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -97,15 +109,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(sourceUser);
     }
 
-//    @Override
-//    public void updatePassword(ChangePasswordDto passwords) {
-//        var email = passwords.getUserEmail();
-//        var user = userRepository.findByEmail(email)
-//                .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(email)));
-//        var encodePassword = passwordEncoder.encode(passwords.getNewPassword());
-//
-//        user.setPassword(encodePassword);
-//    }
 
     @Override
     public boolean isEmailAvailable(String email) {

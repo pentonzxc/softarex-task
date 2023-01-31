@@ -13,7 +13,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: nikolai.urusov@gmail.com
-    password: jgwydydsnoreepvr
+    password: wwluwvggxvqggtzs
     properties:
       mail:
         smtp:

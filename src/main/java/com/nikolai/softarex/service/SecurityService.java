@@ -4,8 +4,10 @@ package com.nikolai.softarex.service;
 import com.nikolai.softarex.dto.ChangePasswordDto;
 import com.nikolai.softarex.dto.LoginDto;
 import com.nikolai.softarex.entity.User;
+import com.nikolai.softarex.entity.UserPasswordChange;
 import com.nikolai.softarex.exception.*;
 import com.nikolai.softarex.interfaces.UserService;
+import com.nikolai.softarex.repository.UserPasswordChangeRepository;
 import com.nikolai.softarex.util.CookieUtil;
 import com.nikolai.softarex.util.ExceptionMessageUtil;
 import com.nikolai.softarex.util.SecurityContextUtil;
@@ -45,6 +47,9 @@ public class SecurityService {
 
     private final EmailService emailService;
 
+
+    private final UserPasswordChangeRepository repository;
+
     @Value("${cookies.domain}")
     private String domain;
 
@@ -53,12 +58,14 @@ public class SecurityService {
     public SecurityService(UserService userService,
                            PasswordEncoder passwordEncoder,
                            AuthenticationManager authenticationManager,
-                           JwtService jwtService, EmailService emailService) {
+                           JwtService jwtService, EmailService emailService,
+                           UserPasswordChangeRepository repository) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtHelper = jwtService.new JwtServiceHelper();
         this.emailService = emailService;
+        this.repository = repository;
     }
 
 
@@ -135,28 +142,10 @@ public class SecurityService {
         return authentication;
     }
 
-
-    public void changePassword(ChangePasswordDto passwords, HttpServletRequest emailRequest) throws MessagingException {
-        var email = passwords.getUserEmail();
-        var user = userService.findByEmail(email)
-                .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(email)));
-
-        var oldPassword = passwordEncoder.encode(passwords.getOldPassword());
-
-        if (!user.getPassword().equals(oldPassword)) {
-            throw new BadCredentialsException("passwords doesn't match");
-        }
-
-        var newPassword = passwordEncoder.encode(passwords.getOldPassword());
-
-        user.setPasswordChange(newPassword);
-
-        emailService.sendUpdatePasswordEmail(user, emailRequest.getRequestURL().toString());
-    }
-
-
     public User authenticatedUser() {
         var userDetails = SecurityContextUtil.retrieveUserDetails();
         return userService.findByEmail(userDetails.getUsername()).orElseThrow(UserNotFoundException::new);
     }
+
+
 }

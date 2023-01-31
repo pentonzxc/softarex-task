@@ -24,11 +24,13 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String sender;
 
-    public void sendUpdatePasswordEmail(User user, String requestURL) throws MessagingException {
+    public void sendUpdatePasswordEmail(String verificationCode,
+                                        User user,
+                                        String requestURL) throws MessagingException {
         String message = EmailMessage.updatePasswordMessage + "\n"
                 + "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>";
 
-        String verifyURL = requestURL + "/verify?code=" + user.getVerificationCode();
+        String verifyURL = requestURL + "/verify?code=" + verificationCode;
 
         message = message.replace("[[URL]]", verifyURL);
 
@@ -66,7 +68,7 @@ public class EmailService {
 
         helper.setFrom(sender);
         helper.setTo(emailDetails.getReceiver());
-        helper.setText(emailDetails.getMessage() , true);
+        helper.setText(emailDetails.getMessage(), true);
         helper.setSubject(emailDetails.getReceiver());
 
         mailSender.send(message);

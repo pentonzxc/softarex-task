@@ -4,6 +4,7 @@ import com.nikolai.softarex.dto.UpdateProfileDto;
 import com.nikolai.softarex.entity.QuestionnaireField;
 import com.nikolai.softarex.entity.QuestionnaireResponse;
 import com.nikolai.softarex.entity.User;
+import com.nikolai.softarex.entity.UserPasswordChange;
 
 import java.util.Optional;
 
@@ -21,11 +22,11 @@ public interface UserService {
 
     QuestionnaireField addField(Integer userId , QuestionnaireField field);
 
+    void changePassword(User user, UserPasswordChange passwordChange);
 
 
     void updateProfile(UpdateProfileDto profile);
 
-//    void updatePassword(ChangePasswordDto passwords);
 
     boolean isEmailAvailable(String email);
 
