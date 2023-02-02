@@ -1,38 +1,26 @@
-import React from "react";
-import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
+import { useUser } from "../../context/UserProvider";
 
 export default function Navbar() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const fields = [
-    {
-      label: "First Name",
-      type: "text",
-      required: true,
-      active: true,
-    },
-    {
-      label: "Last Name",
-      type: "text",
-
-      required: true,
-      active: true,
-    },
-  ];
+  const context = useUser();
+  const [fullName, setFullName] = context;
 
   return (
     <div className="min-vh-100 w-100 bg-light d-flex flex-column">
       <nav className="navbar navbar-expand-lg bg-white border-bottom border-1">
         <div className="container">
-          <a className="navbar-brand">Logo</a>
+          <Link to="/" className="navbar-brand">
+            Softarex
+          </Link>
           <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
             <ul className="navbar-nav ms-auto d-flex gap-5">
               {location.pathname === "/register" ||
-              location.pathname === "/login" ? (
+              location.pathname === "/login" ||
+              location.pathname.match("^/questionnaire/\\d+$") ||
+              location.pathname === "/questionnaires" ? (
                 <>
                   <li className="nav-item">
                     <a className="nav-link" href="/login">
@@ -57,12 +45,9 @@ export default function Navbar() {
                       className="nav-link link-dark dropdown-toggle"
                       data-bs-toggle="dropdown"
                     >
-                      Your name
+                      {fullName}
                     </a>
                     <div className="dropdown-menu">
-                      <Link to="/profile" className="dropdown-item">
-                        Profile
-                      </Link>
                       <Link to="/editProfile" className="dropdown-item">
                         Edit profile
                       </Link>
@@ -81,9 +66,8 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
-      <div className="containe my-lg-auto p-0">
-
-      <Outlet />
+      <div className="container my-lg-auto p-0">
+        <Outlet />
       </div>
     </div>
   );

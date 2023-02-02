@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretLeft } from "@fortawesome/free-solid-svg-icons";
 import { faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import SockJS from "sockjs-client";
+import { nanoid } from "nanoid";
+
 
 var Stomp = require("stompjs");
 var stompClient = null;
@@ -20,25 +22,38 @@ export default function Responses() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [update, setUpdate] = useState(false);
 
+  const [fieldLabels, setFieldLabels] = useState([]);
+
+  const status = require("http-status");
+
   useEffect(() => {
-    socket = new SockJS("http://localhost:8080/ws");
-    stompClient = Stomp.over(socket);
-    stompClient.connect(
-      { username: id },
-      function (frame) {
-        console.log("Connected: " + frame);
-        stompClient.subscribe("/user/queue/update", function (response) {
-          console.log(response);
-          if (response.body === "update") setUpdate((update) => !update);
-        });
-      },
-      (error) => console.log(error)
-    );
+    connectWS();
+    const getFieldLabels = async () => {
+      let url = new URL(`http://localhost:8080/v1/api/user/${id}/fields`);
+
+      await fetch(url, {
+        method: "GET",
+        cors: "cors",
+        credentials: "include",
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error("Failed to fetch fields labels");
+          }
+        })
+        .then(({ data }) => {
+          setFieldLabels([data.map((field) => field.label)]);
+        })
+        .catch((error) => console.log(error));
+    };
+
+    getFieldLabels();
   }, []);
 
   useEffect(() => {
     return () => {
-      console.log("unmounting");
       stompClient.disconnect();
       socket.close();
     };
@@ -56,8 +71,13 @@ export default function Responses() {
     };
   }, [currentPage, rowsPerPage, totalElements, update]);
 
-  async function getResponses({ controller }) {
-    fetch(`http://localhost:8080/v1/api/user/${id}/responses`, {
+  function getResponses({ controller }) {
+    let url = new URL(`http://localhost:8080/v1/api/user/${id}/responses`);
+    if (currentPage !== null && rowsPerPage !== null) {
+      let params = { page: currentPage, size: rowsPerPage };
+      url.search = new URLSearchParams(params).toString();
+    }
+    fetch(url, {
       method: "GET",
       cors: "cors",
       credentials: "include",
@@ -72,15 +92,95 @@ export default function Responses() {
         }
       })
       .then(({ data, totalElements, totalPages }) => {
+        const newData = [];
         data.forEach((element) => {
-          element.sort((a, b) => a.label.localeCompare(b.label));
+          // sortByTitle();
+          element = mergeCheckboxes(element);
+          sortByTitle(element);
+          newData.push(element);
+          // element.sort((a, b) => a.label.localeCompare(b.label));
         });
-        setResponses(data);
+        setResponses(newData);
         setTotalPages(totalPages);
         setElements(eval(currentPage * rowsPerPage + data.length));
         setTotalElements(totalElements);
       })
       .catch((error) => console.log(error));
+  }
+
+  function connectWS() {
+    socket = new SockJS("http://localhost:8080/ws");
+    stompClient = Stomp.over(socket);
+    stompClient.connect(
+      { username: id },
+      function (frame) {
+        console.log("Connected: " + frame);
+        stompClient.subscribe("/user/queue/update", function (response) {
+          console.log(response);
+          if (response.body === "update") setUpdate((update) => !update);
+        });
+      },
+      (error) => console.log(error)
+    );
+  }
+
+  // async function getFieldLabels() {
+  //   let url = new URL(`http://localhost:8080/v1/api/user/${id}/fields`);
+
+  //   await fetch(url, {
+  //     method: "GET",
+  //     cors: "cors",
+  //     credentials: "include",
+  //   })
+  //     .then((response) => {
+  //       console.log("do that shit")
+  //       if (response.status === 200) {
+  //         return response.json();
+  //       } else {
+  //         throw new Error("Failed to fetch fields labels");
+  //       }
+  //     })
+  //     .then(({ data }) => {
+  //       setFieldLabels([data.map((field) => field.label)]);
+  //     })
+  //     .catch((error) => console.log(error));
+  // }
+
+  function sortByTitle(element) {
+    for (let i = 0; i < fieldLabels.length; i++) {
+      const label = fieldLabels[i];
+
+      element.sort((a, b) => {
+        if (a.label === label) {
+          return -1;
+        } else if (b.label === label) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+    }
+  }
+
+  function mergeCheckboxes(element) {
+    const answer = [];
+    let field_label = "";
+    element.forEach((field) => {
+      if (field.type === "CHECKBOX") {
+        answer.push(field.answer);
+        field_label = field.label;
+      }
+    });
+    element = element.filter((field) => field.type !== "CHECKBOX");
+    answer[0] = '[' + answer[0];
+    answer[answer.length - 1] = answer[answer.length - 1] + ']';
+    element.push({
+      label: field_label,
+      answer: answer.join(","),
+      type: "CHECKBOX",
+    });
+
+    return element;
   }
 
   return (
@@ -112,7 +212,6 @@ export default function Responses() {
                   <tr key={index + response[0].label}>
                     {response.map((element, ind) => (
                       <td key={ind + element.label + "code" + index}>
-                        {/* {console.log(element)} */}
                         {element.answer}
                       </td>
                     ))}

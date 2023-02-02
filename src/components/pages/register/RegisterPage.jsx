@@ -1,6 +1,6 @@
-import React, { useState  , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useCallback } from "react";
 import Cookies from "js-cookie";
 import "./style.css";
@@ -47,8 +47,15 @@ export default function RegisterPage() {
       })
         .then((response) => {
           if (response.status === status.CREATED) {
-            console.log("Register successful");
-            navigate("/login");
+            $("#card__wrapper").prepend(
+              `<div class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>Verify your account!</strong> Verification message on the specified email.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`
+            );
+            setTimeout(() => {
+              navigate("/login", { replace: true });
+            }, 2000);
           } else {
             throw new Error("Register failed");
           }
@@ -86,8 +93,7 @@ export default function RegisterPage() {
         >
           <div className="card" style={{ minHeight: 300 }}>
             <div className="card-body">
-              <h5 className="card-title">SoftArex</h5>
-              <h6 className="card-subtitle mb-2 text-muted">Sign up</h6>
+              <h5 className="card-title">Sign up</h5>
               <form
                 className="d-flex flex-column gap-2"
                 noValidate
@@ -189,7 +195,7 @@ export default function RegisterPage() {
                 <div className="form-text mt-1">
                   <span className="text-dark">Already have account?</span>
                   <a href="#" className="stretched-link-primary mx-2">
-                    Sign in
+                    <Link to="/login">Sign in</Link>
                   </a>
                 </div>
               </form>

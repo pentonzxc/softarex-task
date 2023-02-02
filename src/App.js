@@ -8,6 +8,10 @@ import Navbar from "./components/pages/navbar/Navbar";
 import HomePage from "./components/pages/home/HomePage";
 import Questionnaire from "./components/pages/questionnaire/Questionnaire";
 import Responses from "./components/pages/responses/Responses";
+import EditProfile from "./components/pages/profile/EditProfile";
+import ChangePassword from "./components/pages/profile/ChangePassword";
+import LogoutPage from "./components/pages/logout/LogoutPage";
+import QuestionnairesAuthors from "./components/pages/questionnaire/QuestionnairesAuthors";
 
 function App() {
   return (
@@ -19,7 +23,11 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="fields" element={<FieldsPage/>}/>
           <Route path="responses" element={<Responses />} />
+          <Route path="editProfile" element={<EditProfile />} />
+          <Route path="changePassword" element={<ChangePassword />} />
+          <Route path="logout" element={<LogoutPage />} />
         </Route>
+        <Route path="/questionnaires" element={<QuestionnairesAuthors/>} />
         <Route path="/questionnaire/:id" element={<Questionnaire/>} />
       </Route>
     </Routes>

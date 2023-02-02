@@ -1,26 +1,23 @@
 import React from "react";
 import Cookies from "js-cookie";
-import { useContext } from "react";
-import { useEffect } from "react";
+import { useContext , useState} from "react";
 
 export const UserContext = React.createContext();
 
 export default function UserProvider({ children }) {
-  const [token, setToken] = React.useState(Cookies.get("token"));
-  const [refreshToken, setRefreshToken] = React.useState(
-    Cookies.get("refresh_token")
+  const [fullName, setFullName] = useState(localStorage.getItem("user_full_name"));
+
+  return (
+    <UserContext.Provider
+      value={[fullName , setFullName]}
+    >
+      {children}
+    </UserContext.Provider>
   );
-
-  const tokens = {
-    access: [token, setToken],
-    refresh: [refreshToken, setRefreshToken],
-  };
-
-  return <UserContext.Provider value={tokens}>{children}</UserContext.Provider>;
 }
 function useUser() {
   const context = useContext(UserContext);
-  
+
   return context;
 }
 

@@ -1,32 +1,34 @@
 import React, { useCallback, useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import "./style.css";
 import $ from "jquery";
 
 export default function LoginPage() {
   const navigate = useNavigate();
 
+  const [showTokenExpiredMsg, setShowTokenExpiredMsg] = useState(
+    localStorage.getItem("token_state") === "invalid"
+  );
+
+  const [showVerifyAccountMsg, setShowVerifyAccountMsg] = useState(false);
+
   useEffect(() => {
     if (Cookies.get("token")) {
       navigate("/", { replace: true });
     }
 
+    setTimeout(function () {
+      if ($("#token__expired").length > 0) {
+        localStorage.removeItem("token_state");
+        setShowTokenExpiredMsg(false);
+      }
+    }, 3000);
+
     return () => {
       localStorage.removeItem("token_state");
     };
   }, []);
-  const location = useLocation();
-  // const showTokenExpiredMsg = location.state?.message;
-  // const setShowTokenExpiredMsg = location.state?.setMessage;
-  // console.log(showTokenExpiredMsg);
-
-  setTimeout(function () {
-    if ($("#token__expired").length > 0) {
-      $("#token__expired").remove();
-    }
-  }, 5000);
-
   const status = require("http-status");
 
   const initUserData = {
@@ -64,11 +66,20 @@ export default function LoginPage() {
 
           navigate("/", { replace: true });
         } else {
+          if (response.status === status.BAD_REQUEST) {
+            console.log("SOME INFO");
+            setShowVerifyAccountMsg(true);
+            setTimeout(() => {
+              setShowVerifyAccountMsg(false);
+            }, 3000);
+            
+          }
+          else {
           throw new Error("Login failed");
+          }
         }
       })
       .catch((error) => {
-        console.log(error);
         console.log("Login failed");
         $("#error_msg").remove();
         $("#card__wrapper").prepend(
@@ -100,7 +111,7 @@ export default function LoginPage() {
           className="col-9 col-sm-7 col-md-5 col-lg-5 col-xxl-3"
           id="card__wrapper"
         >
-          {localStorage.getItem("token_state") === "invalid" && (
+          {showTokenExpiredMsg && (
             <div
               className="alert alert-warning alert-dismissible fade show"
               role="alert"
@@ -114,6 +125,26 @@ export default function LoginPage() {
                 aria-label="Close"
                 onClick={() => {
                   localStorage.removeItem("token_state");
+                  setShowTokenExpiredMsg(false);
+                }}
+              ></button>
+            </div>
+          )}
+          {showVerifyAccountMsg && (
+            <div
+              className="alert alert-warning alert-dismissible fade show"
+              role="alert"
+              id="verify__account"
+            >
+              <strong>Verify your account!</strong> Please verify your account
+              first.
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+                onClick={() => {
+                  setShowVerifyAccountMsg(false);
                 }}
               ></button>
             </div>
@@ -121,8 +152,7 @@ export default function LoginPage() {
 
           <div className="card" style={{ minHeight: 300 }}>
             <div className="card-body">
-              <h5 className="card-title">SoftArex</h5>
-              <h6 className="card-subtitle mb-2 text-muted">Sign in</h6>
+              <h5 className="card-title">Sign in</h5>
               <form
                 className="d-flex flex-column gap-2"
                 noValidate
@@ -155,7 +185,7 @@ export default function LoginPage() {
                     Password
                   </label>
                 </div>
-                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                <div className="d-flex flex-column flex-sm-row justify-content-start align-items-center gap-2">
                   <div className="form-check mt-2">
                     <input
                       className="form-check-input"
@@ -172,7 +202,7 @@ export default function LoginPage() {
                       Remember me
                     </label>
                   </div>
-                  <div className="form-text">
+                  {/* <div className="form-text">
                     <a
                       href="#"
                       className="stretched-link-primary fw-bold"
@@ -180,7 +210,7 @@ export default function LoginPage() {
                     >
                       Forgot your password?
                     </a>
-                  </div>
+                  </div> */}
                 </div>
                 <button type="submit" className="btn btn-primary w-100 mt-1">
                   Submit
@@ -188,7 +218,7 @@ export default function LoginPage() {
                 <div className="form-text mt-1">
                   <span className="text-dark">Don't have account?</span>
                   <a href="#" className="stretched-link-primary mx-2">
-                    Sign up?
+                    <Link to="/register">Sign up</Link>
                   </a>
                 </div>
               </form>

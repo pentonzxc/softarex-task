@@ -17,6 +17,8 @@ export default function FieldsPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const status = require("http-status");
+
   const id = localStorage.getItem("user_id");
 
   const addField = useCallback(
@@ -27,10 +29,6 @@ export default function FieldsPage() {
     [fields]
   );
 
-  const tot = 0;
-
-  const handlePageChange = (isNext) => {};
-
   const deleteField = useCallback(
     (field_id) => {
       fetch(`http://localhost:8080/v1/api/field/remove/${field_id}`, {
@@ -40,7 +38,7 @@ export default function FieldsPage() {
       })
         .then((response) => {
           console.log(response);
-          if (response.status === 200) {
+          if (response.status === status.OK) {
             console.log("Field deleted");
             setFields((fields) => fields.filter((field) => field.id !== id));
             if (totalElements % rowsPerPage === 1 && currentPage !== 0) {
@@ -87,7 +85,7 @@ export default function FieldsPage() {
       })
         .then((response) => {
           console.log(response);
-          if (response.status === 200) {
+          if (response.status === status.OK) {
             return response.json();
           } else {
             throw new Error("Failed to fetch fields");

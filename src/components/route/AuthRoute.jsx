@@ -10,6 +10,7 @@ import { Nav } from "react-bootstrap";
 
 export default function AuthRoute() {
   const context = useUser();
+  const [fullName, setFullName] = context;
   const status = require("http-status");
 
   const [isLoading, setIsLoading] = useState(true);
@@ -37,24 +38,33 @@ export default function AuthRoute() {
           if (response.status !== status.OK) {
             if (localStorage.getItem("user_id")) {
               localStorage.removeItem("user_id");
+              localStorage.removeItem("user_full_name");
+              setFullName(null);
               localStorage.setItem("token_state", "invalid");
             }
             throw new Error("Tokens are invalid");
           }
           setIsTokenValid(true);
-          return response.text();
+          return response.json();
         })
-        .then((id) => {
-          const idOpt = localStorage.getItem("user_id");
-          if (!idOpt || idOpt !== id) {
-            localStorage.setItem("user_id", id);
+        .then((body) => {
+          for (const property in body) {
+            localStorage.setItem("user_id", property);
+            localStorage.setItem("user_full_name", body[property]);
+            setFullName(body[property]);
           }
         })
         .catch((error) => {
           console.error(error);
+          Cookies.remove("token");
+          Cookies.remove("refresh_token");
           setIsTokenValid(false);
         });
+
       setIsLoading(false);
+      // if (localStorage.getItem("user_full_name") === null) {
+      //   getUserFullName();
+      // }
     };
     validate({ controller });
     return () => {
@@ -66,23 +76,46 @@ export default function AuthRoute() {
     };
   }, []);
 
+  async function getUserFullName() {
+    fetch(
+      `http://localhost:8080/v1/api/user/profile/${localStorage.getItem(
+        "user_id"
+      )}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cors: "cors",
+        credentials: "include",
+      }
+    )
+      .then((response) => {
+        if (response.status === status.OK) {
+          console.log(response);
+          return response.text();
+        } else {
+          throw new Error("Failed to fetch user");
+        }
+      })
+      .then((data) => {
+        localStorage.setItem("user_full_name", data);
+      });
+  }
+
   return (
     <>
       {isLoading && (
-        <div class="d-flex justify-content-center align-items-center h-100 w-100">
+        <div className="d-flex justify-content-center align-items-center h-100 w-100">
           <div
-            class="spinner-border ml-auto"
+            className="spinner-border ml-auto"
             role="status"
             aria-hidden="true"
           ></div>
         </div>
       )}
       {isTokenValid === true && <Outlet />}
-      {isTokenValid === false && (
-        <Navigate
-          to="/login"
-        />
-      )}
+      {isTokenValid === false && <Navigate to="/login" />}
     </>
   );
 }
