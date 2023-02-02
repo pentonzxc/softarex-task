@@ -2,6 +2,7 @@ package com.nikolai.softarex.web.controller;
 
 import com.nikolai.softarex.domain.entity.User;
 import com.nikolai.softarex.security.service.SecurityService;
+import com.nikolai.softarex.security.util.CookieUtil;
 import com.nikolai.softarex.web.dto.LoginDto;
 import com.nikolai.softarex.web.dto.UserDto;
 import com.nikolai.softarex.web.exception.UserAlreadyExistException;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -93,6 +93,12 @@ public class AuthController {
         } catch (JwtException exception) {
             return responseBuilder.response(HttpStatus.UNAUTHORIZED, null);
         }
+    }
+
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public ResponseEntity<?> logout() {
+        return new CookieResponse<>(responseBuilder, CookieUtil.createInvalidJwtCookies(System.getenv("domain")))
+                .response(HttpStatus.OK, null);
     }
 
 }
