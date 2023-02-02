@@ -2,12 +2,14 @@ package com.nikolai.softarex.web.controller;
 
 import com.nikolai.softarex.domain.entity.UserPasswordChange;
 import com.nikolai.softarex.domain.interfaces.UserService;
-import com.nikolai.softarex.security.service.ChangePasswordService;
-import com.nikolai.softarex.security.service.SecurityService;
 import com.nikolai.softarex.web.dto.ChangePasswordDto;
 import com.nikolai.softarex.web.dto.UpdateProfileDto;
+import com.nikolai.softarex.web.exception.EmailNotFoundException;
+import com.nikolai.softarex.web.exception.UserAlreadyExistException;
 import com.nikolai.softarex.web.exception.UserNotFoundException;
+import com.nikolai.softarex.web.exception.VerificationCodeNotFoundException;
 import com.nikolai.softarex.web.presenter.ContentResponse;
+import com.nikolai.softarex.web.service.ChangePasswordService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +18,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.nikolai.softarex.web.util.ExceptionMessageUtil.emailNotFoundMsg;
+
 @RestController
 @RequestMapping("/v1/api/user/profile")
 @Slf4j
 public class ProfileController {
 
     private final UserService userService;
-
-
     private final ChangePasswordService changePasswordService;
 
 
@@ -37,11 +39,17 @@ public class ProfileController {
     @RequestMapping(value = "/updateProfile", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileDto profile) {
-        userService.updateProfile(profile);
-
-        return new ContentResponse<>().response(
-                HttpStatus.OK, null
-        );
+        try {
+            userService.updateProfile(
+                    userService.findByEmail(profile.getOldEmail()).orElseThrow(
+                            () -> new EmailNotFoundException(emailNotFoundMsg(profile.getOldEmail()))
+                    ),
+                    profile
+            );
+        } catch (UserAlreadyExistException ex) {
+            return new ContentResponse<>().response(HttpStatus.BAD_REQUEST, null);
+        }
+        return new ContentResponse<>().response(HttpStatus.OK, null);
     }
 
 
@@ -64,9 +72,12 @@ public class ProfileController {
     @RequestMapping(value = "/changePassword/verify", method = RequestMethod.GET)
     public ResponseEntity<?> verifyPasswordChange(@RequestParam(name = "code", required = true)
                                                   String verificationCode) {
-        UserPasswordChange passwordChange = changePasswordService.verifyChangePassword(verificationCode);
-        userService.changePassword(passwordChange.getUser(), passwordChange);
-
+        try {
+            UserPasswordChange passwordChange = changePasswordService.verifyChangePassword(verificationCode);
+            userService.changePassword(passwordChange.getUser(), passwordChange);
+        } catch (VerificationCodeNotFoundException ex) {
+            return new ContentResponse<>().response(HttpStatus.BAD_REQUEST, null);
+        }
         return new ContentResponse<>().response(HttpStatus.OK, null);
     }
 

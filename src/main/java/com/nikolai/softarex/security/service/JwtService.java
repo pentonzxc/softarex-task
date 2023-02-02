@@ -65,9 +65,9 @@ public class JwtService {
         return this.getClaimFromToken(token, Claims::getSubject);
     }
 
-    public Date getIssuedAtDateFromToken(String token) {
+    /*public Date getIssuedAtDateFromToken(String token) {
         return this.getClaimFromToken(token, Claims::getIssuedAt);
-    }
+    }*/
 
     private boolean isTokenExpired(String token) {
         Date expiration = this.getExpirationDateFromToken(token);
@@ -113,12 +113,12 @@ public class JwtService {
         }
 
 
-        public boolean updateRequired(String token, UserDetails user) {
+        /*public boolean updateRequired(String token, UserDetails user) {
             try {
                 return !JwtService.this.validateToken(token, user);
             } catch (ExpiredJwtException ex) {
                 return false;
             }
-        }
+        }*/
     }
 }

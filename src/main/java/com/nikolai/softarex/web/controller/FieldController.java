@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/api/field")
-public class FieldController {
+public class  FieldController {
 
     private final QuestionnaireFieldService fieldService;
 

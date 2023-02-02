@@ -8,16 +8,15 @@ import com.nikolai.softarex.web.exception.UserAlreadyExistException;
 import com.nikolai.softarex.web.mapper.EntityMapper;
 import com.nikolai.softarex.web.presenter.CookieResponse;
 import com.nikolai.softarex.web.presenter.ResponseBuilder;
+import io.jsonwebtoken.JwtException;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -63,7 +62,10 @@ public class AuthController {
                                             String verificationCode) {
         securityService.verifyRegister(verificationCode);
 
-        return responseBuilder.response(HttpStatus.OK, null);
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, "http://localhost:3000/login")
+                .build();
     }
 
 
@@ -77,19 +79,22 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/validate", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> verifyAccessToken(@CookieValue(name = "token", required = false) String accessToken,
                                                @CookieValue(name = "refresh_token", required = false) String refreshToken) {
-        var user = securityService.authenticatedUser();
-        var updatedTokenOpt = securityService.verifyIfRequireUpdateToken(user, accessToken, refreshToken);
+        try {
+            var user = securityService.authenticatedUser();
+            var updatedTokenOpt = securityService.verifyIfRequireUpdateToken(user, accessToken, refreshToken);
 
-        if (updatedTokenOpt.isPresent()) {
-            return new CookieResponse<>(responseBuilder, new ResponseCookie[]{
-                    updatedTokenOpt.get()
-            }).response(HttpStatus.OK, user.getId());
+            if (updatedTokenOpt.isPresent()) {
+                return new CookieResponse<>(responseBuilder, new ResponseCookie[]{
+                        updatedTokenOpt.get()
+                }).response(HttpStatus.OK, user.getId());
+            }
+            return responseBuilder.response(HttpStatus.OK, Pair.of(user.getId(), user.getFullName()));
+
+        } catch (JwtException exception) {
+            return responseBuilder.response(HttpStatus.UNAUTHORIZED, null);
         }
-
-        return responseBuilder.response(HttpStatus.OK, user.getId());
     }
 
 }

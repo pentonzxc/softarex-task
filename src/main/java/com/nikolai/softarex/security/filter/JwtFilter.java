@@ -2,7 +2,6 @@ package com.nikolai.softarex.security.filter;
 
 import com.nikolai.softarex.security.service.JwtService;
 import com.nikolai.softarex.security.util.SecurityContextUtil;
-import com.nikolai.softarex.web.exception.InvalidTokenException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -83,13 +82,14 @@ public class JwtFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException ignore) {
 
         } catch (JwtException ex) {
-            throw new InvalidTokenException();
+//            throw new InvalidTokenException();
+            return;
         }
 
         log.debug("First token - {} : isInvalid - {}", firstToken.getName(), isFirstInvalid);
 
         if (jwtCookies.length == 1 && isFirstInvalid) {
-            throw new InvalidTokenException();
+//            throw new InvalidTokenException();
         } else if (jwtCookies.length == 2) {
             final Cookie secondToken = jwtCookies[1];
             boolean isSecondInvalid = true;
@@ -98,14 +98,15 @@ public class JwtFilter extends OncePerRequestFilter {
             } catch (ExpiredJwtException ignore) {
 
             } catch (JwtException ex) {
-                throw new InvalidTokenException();
+//                throw new InvalidTokenException();
+                return;
             }
 
             log.debug("Second token - {} : isInvalid - {}", secondToken.getName(), isSecondInvalid);
 
-            if (isSecondInvalid) {
+           /* if (isSecondInvalid) {
                 throw new InvalidTokenException();
-            }
+            }*/
         }
     }
 

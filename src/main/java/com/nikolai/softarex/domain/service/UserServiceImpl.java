@@ -6,15 +6,15 @@ import com.nikolai.softarex.domain.entity.UserPasswordChange;
 import com.nikolai.softarex.domain.interfaces.UserService;
 import com.nikolai.softarex.domain.repository.UserRepository;
 import com.nikolai.softarex.web.dto.UpdateProfileDto;
-import com.nikolai.softarex.web.exception.EmailNotFoundException;
+import com.nikolai.softarex.web.exception.UserAlreadyExistException;
 import com.nikolai.softarex.web.exception.UserNotFoundException;
+import com.nikolai.softarex.web.util.ExceptionMessageUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.nikolai.softarex.web.util.ExceptionMessageUtil.emailNotFoundMsg;
 import static com.nikolai.softarex.web.util.ExceptionMessageUtil.userNotFoundMsg;
 
 @Service
@@ -80,10 +80,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateProfile(UpdateProfileDto profile) {
-        var oldEmail = profile.getOldEmail();
-        var sourceUser = userRepository.findByEmail(oldEmail)
-                .orElseThrow(() -> new EmailNotFoundException(emailNotFoundMsg(oldEmail)));
+    public void updateProfile(User user, UpdateProfileDto profile) {
+        if (userRepository.findByEmail(profile.getNewEmail()).isPresent()
+                && !profile.getOldEmail().equals(profile.getNewEmail())) {
+            throw new UserAlreadyExistException(ExceptionMessageUtil.userAlreadyExistMsg(profile.getNewEmail()));
+        }
 
         var newEmail = profile.getNewEmail();
         var newFirstName = profile.getFirstName();
@@ -91,22 +92,22 @@ public class UserServiceImpl implements UserService {
         var newPhoneNumber = profile.getPhoneNumber();
 
         if (newEmail != null) {
-            sourceUser.setEmail(newEmail);
+            user.setEmail(newEmail);
         }
 
         if (newFirstName != null) {
-            sourceUser.setFirstName(newFirstName);
+            user.setFirstName(newFirstName);
         }
 
         if (newLastName != null) {
-            sourceUser.setLastName(newLastName);
+            user.setLastName(newLastName);
         }
 
         if (newPhoneNumber != null) {
-            sourceUser.setPhoneNumber(newPhoneNumber);
+            user.setPhoneNumber(newPhoneNumber);
         }
 
-        userRepository.save(sourceUser);
+        userRepository.save(user);
     }
 
 

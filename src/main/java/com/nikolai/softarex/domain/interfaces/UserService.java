@@ -25,7 +25,7 @@ public interface UserService {
     void changePassword(User user, UserPasswordChange passwordChange);
 
 
-    void updateProfile(UpdateProfileDto profile);
+    void updateProfile(User user , UpdateProfileDto profile);
 
 
     boolean isEmailAvailable(String email);

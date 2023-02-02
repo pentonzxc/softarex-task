@@ -6,7 +6,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
 
 
   mail:

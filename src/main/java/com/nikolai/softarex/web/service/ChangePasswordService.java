@@ -1,11 +1,10 @@
-package com.nikolai.softarex.security.service;
+package com.nikolai.softarex.web.service;
 
 import com.nikolai.softarex.domain.entity.User;
 import com.nikolai.softarex.domain.entity.UserPasswordChange;
 import com.nikolai.softarex.domain.interfaces.UserChangePasswordService;
 import com.nikolai.softarex.web.dto.ChangePasswordDto;
 import com.nikolai.softarex.web.exception.VerificationCodeNotFoundException;
-import com.nikolai.softarex.web.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -45,14 +44,16 @@ public class ChangePasswordService {
             throw new BadCredentialsException("passwords doesn't match");
         }
 
+        UserPasswordChange passwordChange = user.getPasswordChange() == null ?
+                new UserPasswordChange() : user.getPasswordChange();
+
+
         var verificationCode = RandomStringUtils.random(64);
+        passwordChange.setPassword(passwordEncoder.encode(passwords.getNewPassword()));
+        passwordChange.setVerificationCode(verificationCode);
+        passwordChange.setUser(user);
 
-        UserPasswordChange newPasswordChange = new UserPasswordChange();
-        newPasswordChange.setPassword(passwordEncoder.encode(passwords.getNewPassword()));
-        newPasswordChange.setVerificationCode(verificationCode);
-        newPasswordChange.setUser(user);
-
-        changePasswordService.save(newPasswordChange);
+        changePasswordService.save(passwordChange);
 
         emailService.sendUpdatePasswordEmail(verificationCode, user, emailRequest.getRequestURL().toString());
     }

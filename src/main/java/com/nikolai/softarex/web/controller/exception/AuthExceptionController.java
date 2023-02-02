@@ -67,9 +67,9 @@ public class AuthExceptionController extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserNotVerifyException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleUserNotVerifyException(UserNotVerifyException ex) {
-        return new ResponseEntity<>("User doesn't confirmed verification", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("User doesn't confirmed verification", HttpStatus.BAD_REQUEST);
     }
 
 

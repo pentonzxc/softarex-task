@@ -9,6 +9,7 @@ import com.nikolai.softarex.web.dto.LoginDto;
 import com.nikolai.softarex.web.exception.*;
 import com.nikolai.softarex.web.service.EmailService;
 import com.nikolai.softarex.web.util.ExceptionMessageUtil;
+import io.jsonwebtoken.JwtException;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +101,12 @@ public class SecurityService {
 
 
     public Optional<ResponseCookie> verifyIfRequireUpdateToken(UserDetails user, String token, String refreshToken) {
+        boolean accessIsValid = jwtHelper.validateToken(Optional.ofNullable(token), user);
+        boolean refreshIsValid = jwtHelper.validateToken(Optional.ofNullable(refreshToken), user);
+        if(!(accessIsValid || refreshIsValid)){
+            throw new JwtException("JWT exception");
+        }
+
         if (token == null && refreshToken != null) {
             return Optional.of(
                     CookieUtil.createJwtCookie(jwtHelper.createRefreshAndAccessToken(user)[0], domain)
