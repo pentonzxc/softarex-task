@@ -10,6 +10,7 @@ import com.nikolai.softarex.web.exception.UserNotFoundException;
 import com.nikolai.softarex.web.exception.VerificationCodeNotFoundException;
 import com.nikolai.softarex.web.presenter.ContentResponse;
 import com.nikolai.softarex.web.service.ChangePasswordService;
+import com.nikolai.softarex.web.util.ApiPath;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import static com.nikolai.softarex.web.util.ExceptionMessageUtil.emailNotFoundMsg;
 
 @RestController
-@RequestMapping("/v1/api/user/profile")
+@RequestMapping(ApiPath.API_V1 + "/user/profile")
 @Slf4j
 public class ProfileController {
 

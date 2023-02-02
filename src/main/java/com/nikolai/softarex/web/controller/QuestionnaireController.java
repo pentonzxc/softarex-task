@@ -5,6 +5,7 @@ import com.nikolai.softarex.web.exception.QuestionnaireNotFoundException;
 import com.nikolai.softarex.web.mapper.EntityMapper;
 import com.nikolai.softarex.web.presenter.ContentResponse;
 import com.nikolai.softarex.web.service.QuestionnaireService;
+import com.nikolai.softarex.web.util.ApiPath;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/api/questionnaire")
+@RequestMapping(ApiPath.API_V1 + "/questionnaire")
 public class QuestionnaireController {
 
     private final QuestionnaireService questionnaireService;

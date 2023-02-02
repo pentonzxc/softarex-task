@@ -10,6 +10,7 @@ import com.nikolai.softarex.web.exception.UserNotFoundException;
 import com.nikolai.softarex.web.mapper.EntityMapper;
 import com.nikolai.softarex.web.presenter.ContentResponse;
 import com.nikolai.softarex.web.service.PageService;
+import com.nikolai.softarex.web.util.ApiPath;
 import com.nikolai.softarex.web.util.CommonUserMapperUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/v1/api/user")
+@RequestMapping(ApiPath.API_V1 + "/user")
 public class UserController {
 
     private final UserService userService;

@@ -2,6 +2,7 @@ package com.nikolai.softarex.security.config;
 
 import com.nikolai.softarex.security.filter.JwtFilter;
 import com.nikolai.softarex.security.service.LoadUserService;
+import com.nikolai.softarex.web.util.ApiPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity()
 @Configuration
 public class WebSecurityConfig {
 
@@ -47,8 +48,8 @@ public class WebSecurityConfig {
                 .and();
 
         http = http.authorizeHttpRequests()
-                .requestMatchers("/v1/api/auth/**").permitAll()
-                .requestMatchers("/v1/api/questionnaire/**").permitAll()
+                .requestMatchers(ApiPath.API_V1 + "/auth/**").permitAll()
+                .requestMatchers(ApiPath.API_V1 + "/questionnaire/**").permitAll()
                 .anyRequest().authenticated()
                 .and();
 
@@ -56,7 +57,7 @@ public class WebSecurityConfig {
 
         http = http.exceptionHandling().defaultAuthenticationEntryPointFor(
                 failedAuthenticationPoint,
-                new AntPathRequestMatcher("/v1/api/auth/validate")
+                new AntPathRequestMatcher(ApiPath.API_V1 + "/auth/validate")
         ).and();
 
         return http.build();

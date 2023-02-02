@@ -8,13 +8,14 @@ import com.nikolai.softarex.web.dto.QuestionnaireFieldDto;
 import com.nikolai.softarex.web.mapper.EntityMapper;
 import com.nikolai.softarex.web.mapper.FieldMapper;
 import com.nikolai.softarex.web.presenter.ContentResponse;
+import com.nikolai.softarex.web.util.ApiPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/api/field")
+@RequestMapping(ApiPath.API_V1 + "/field")
 public class FieldController {
 
     private final QuestionnaireFieldService fieldService;

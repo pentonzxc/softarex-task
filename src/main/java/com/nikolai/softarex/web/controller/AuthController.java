@@ -9,6 +9,7 @@ import com.nikolai.softarex.web.exception.UserAlreadyExistException;
 import com.nikolai.softarex.web.mapper.EntityMapper;
 import com.nikolai.softarex.web.presenter.CookieResponse;
 import com.nikolai.softarex.web.presenter.ResponseBuilder;
+import com.nikolai.softarex.web.util.ApiPath;
 import io.jsonwebtoken.JwtException;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/api/auth")
+@RequestMapping(ApiPath.API_V1 + "/auth")
 @Slf4j
 public class AuthController {
 

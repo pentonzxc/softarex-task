@@ -32,6 +32,10 @@ logging:
   level:
     com.nikolai.softarex: debug
 
+
+client:
+  address: http://localhost:3000
+
 cookies:
   domain: localhost
 
