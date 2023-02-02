@@ -1,10 +1,9 @@
 package com.nikolai.softarex.web.controller;
 
 import com.nikolai.softarex.domain.entity.QuestionnaireResponse;
-import com.nikolai.softarex.domain.interfaces.UserService;
+import com.nikolai.softarex.web.exception.QuestionnaireNotFoundException;
 import com.nikolai.softarex.web.mapper.EntityMapper;
 import com.nikolai.softarex.web.presenter.ContentResponse;
-import com.nikolai.softarex.web.service.NotifyService;
 import com.nikolai.softarex.web.service.QuestionnaireService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,19 +17,12 @@ public class QuestionnaireController {
 
     private final QuestionnaireService questionnaireService;
 
-    private final UserService userService;
-
-    private final NotifyService notifyService;
 
     private final EntityMapper<QuestionnaireResponse, List<Object>> responseMapper;
 
     public QuestionnaireController(QuestionnaireService questionnaireService,
-                                   UserService userService,
-                                   NotifyService notifyService,
                                    EntityMapper<QuestionnaireResponse, List<Object>> responseMapper) {
         this.questionnaireService = questionnaireService;
-        this.userService = userService;
-        this.notifyService = notifyService;
         this.responseMapper = responseMapper;
     }
 
@@ -39,7 +31,12 @@ public class QuestionnaireController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> questionnaire(@PathVariable(name = "id", required = true)
                                            Integer id) {
-        return new ContentResponse<>().response(HttpStatus.OK, questionnaireService.questionnaireFromUserId(id));
+        try {
+            var questionnaireDto = questionnaireService.questionnaireFromUserId(id);
+            return new ContentResponse<>().response(HttpStatus.OK, questionnaireDto);
+        } catch (QuestionnaireNotFoundException ex) {
+            return new ContentResponse<>().response(HttpStatus.BAD_REQUEST, null);
+        }
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)

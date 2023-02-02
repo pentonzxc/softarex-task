@@ -57,6 +57,8 @@ public class UserServiceImpl implements UserService {
         var user = this.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userNotFoundMsg(userId)));
 
+
+
         return addField(user, field);
     }
 

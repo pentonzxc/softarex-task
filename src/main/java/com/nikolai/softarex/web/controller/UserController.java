@@ -1,6 +1,8 @@
 package com.nikolai.softarex.web.controller;
 
 
+import com.nikolai.softarex.domain.event.QuestionnaireFieldPublisher;
+import com.nikolai.softarex.domain.event.RemoveAllResponsesEvent;
 import com.nikolai.softarex.domain.entity.QuestionnaireField;
 import com.nikolai.softarex.domain.interfaces.UserService;
 import com.nikolai.softarex.web.dto.QuestionnaireFieldDto;
@@ -23,12 +25,16 @@ public class UserController {
     private final PageService pageService;
     private final EntityMapper<QuestionnaireField, QuestionnaireFieldDto> fieldMapper;
 
+    private final QuestionnaireFieldPublisher publisher;
+
+
     public UserController(UserService userService,
                           PageService pageService,
-                          EntityMapper<QuestionnaireField, QuestionnaireFieldDto> fieldMapper) {
+                          EntityMapper<QuestionnaireField, QuestionnaireFieldDto> fieldMapper, QuestionnaireFieldPublisher publisher) {
         this.userService = userService;
         this.pageService = pageService;
         this.fieldMapper = fieldMapper;
+        this.publisher = publisher;
     }
 
 
@@ -42,6 +48,7 @@ public class UserController {
             @RequestBody QuestionnaireFieldDto fieldDto,
             @PathVariable(name = "id", required = true) int userId
     ) {
+        publisher.publishEvent(new RemoveAllResponsesEvent(userId));
         var field = fieldMapper.convertDtoToEntity(fieldDto);
 
         return new ContentResponse<>().response(HttpStatus.CREATED, userService.addField(userId, field).getId());
@@ -79,7 +86,6 @@ public class UserController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> user(@PathVariable(name = "id", required = true) int userId) {
-
         return new ContentResponse<>().response(
                 HttpStatus.OK, CommonUserMapperUtil.userEntityToProfileDto(
                         userService.findById(userId).orElseThrow(UserNotFoundException::new)

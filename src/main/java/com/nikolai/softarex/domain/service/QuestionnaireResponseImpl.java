@@ -3,6 +3,7 @@ package com.nikolai.softarex.domain.service;
 import com.nikolai.softarex.domain.entity.QuestionnaireResponse;
 import com.nikolai.softarex.domain.interfaces.QuestionnaireResponseService;
 import com.nikolai.softarex.domain.repository.QuestionnaireResponseRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,13 @@ public class QuestionnaireResponseImpl implements QuestionnaireResponseService {
 
 
     @Override
-    public Page<QuestionnaireResponse> findByUserId(int user_id, Pageable pageable) {
-        return repository.findByUserId(user_id, pageable);
+    public Page<QuestionnaireResponse> findByUserId(int userId, Pageable pageable) {
+        return repository.findByUserId(userId, pageable);
+    }
+
+    @Override
+    @Transactional
+    public void removeAllByUserId(int userId) {
+        repository.removeAllByUserId(userId);
     }
 }

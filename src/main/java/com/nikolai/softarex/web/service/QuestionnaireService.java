@@ -1,5 +1,6 @@
 package com.nikolai.softarex.web.service;
 
+import com.nikolai.softarex.domain.entity.QuestionnaireField;
 import com.nikolai.softarex.domain.entity.QuestionnaireResponse;
 import com.nikolai.softarex.domain.interfaces.UserService;
 import com.nikolai.softarex.web.dto.QuestionnaireDto;
@@ -25,7 +26,11 @@ public class QuestionnaireService {
     @Transactional
     public QuestionnaireDto questionnaireFromUserId(Integer userId) {
         var userOpt = userService.findById(userId);
-        return userOpt.map(user -> new QuestionnaireDto(user.getQuestionnaireFields()))
+        return userOpt.map(user -> new QuestionnaireDto(
+                        user.getQuestionnaireFields()
+                                .stream()
+                                .filter(QuestionnaireField::isActive)
+                                .toList()))
                 .orElseThrow(() -> new QuestionnaireNotFoundException(
                         ExceptionMessageUtil.questionnaireNotFound(userId)));
     }

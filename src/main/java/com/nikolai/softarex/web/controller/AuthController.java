@@ -30,8 +30,6 @@ public class AuthController {
 
     private final ResponseBuilder<Object> responseBuilder;
 
-    @Value("${cookies.domain}")
-    private String domain;
 
     @Autowired
     public AuthController(@Qualifier("userMapper") EntityMapper<User, UserDto> userMapper,
