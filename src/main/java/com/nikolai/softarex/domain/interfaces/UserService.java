@@ -6,6 +6,7 @@ import com.nikolai.softarex.domain.entity.User;
 import com.nikolai.softarex.domain.entity.UserPasswordChange;
 import com.nikolai.softarex.web.dto.UpdateProfileDto;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -31,5 +32,8 @@ public interface UserService {
     boolean isEmailAvailable(String email);
 
     Optional<User> findByVerificationCode(String code);
+
+
+    List<User> findAll();
 
 }

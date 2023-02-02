@@ -33,7 +33,7 @@ public class QuestionnaireController {
     public ResponseEntity<?> questionnaire(@PathVariable(name = "id", required = true)
                                            Integer id) {
         try {
-            var questionnaireDto = questionnaireService.questionnaireFromUserId(id);
+            var questionnaireDto = questionnaireService.findFromUserId(id);
             return new ContentResponse<>().response(HttpStatus.OK, questionnaireDto);
         } catch (QuestionnaireNotFoundException ex) {
             return new ContentResponse<>().response(HttpStatus.BAD_REQUEST, null);
@@ -49,5 +49,11 @@ public class QuestionnaireController {
         questionnaireService.createQuestionnaireResponse(id, response);
 
         return new ContentResponse<>().response(HttpStatus.CREATED, null);
+    }
+
+
+    @RequestMapping(value = "/authors", method = RequestMethod.GET)
+    public ResponseEntity<?> allQuestionnairesAuthors() {
+        return new ContentResponse<>().response(HttpStatus.OK, questionnaireService.findAll());
     }
 }

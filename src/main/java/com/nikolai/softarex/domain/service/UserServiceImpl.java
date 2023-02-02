@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.nikolai.softarex.web.util.ExceptionMessageUtil.userNotFoundMsg;
@@ -56,7 +57,6 @@ public class UserServiceImpl implements UserService {
     public QuestionnaireField addField(Integer userId, QuestionnaireField field) {
         var user = this.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userNotFoundMsg(userId)));
-
 
 
         return addField(user, field);
@@ -121,6 +121,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findByVerificationCode(String code) {
         return userRepository.findByVerificationCode(code);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
 }
