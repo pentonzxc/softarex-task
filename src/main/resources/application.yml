@@ -12,8 +12,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: nikolai.urusov@gmail.com
-    password: lqytbkigmomsjsin
+#    username: put your email
+#    password: put your key
     properties:
       mail:
         smtp:
@@ -31,10 +31,6 @@ jwt:
 logging:
   level:
     com.nikolai.softarex: debug
-
-
-client:
-  address: http://localhost:3000
 
 cookies:
   domain: localhost
